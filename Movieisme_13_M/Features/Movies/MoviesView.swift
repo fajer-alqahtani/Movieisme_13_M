@@ -18,21 +18,24 @@ struct MovieView: View {
                     HStack{
                         Text("Movie Center")
                             .foregroundStyle(Color.white)
+                            .font(.system(size: 28, weight: .bold))
                         Spacer()
-                        Image(systemName: "book.circle")
-                            .foregroundStyle(Color.white)
+                        Image("icon")
                     }
-                    TextField("Search...", text: $searchText)
+                    TextField("Search for Movie name , actors ...", text: $searchText)
+                        .font(.system(size: 17))
                         .background(Color(.systemGray6))
                         .foregroundStyle(Color.white)
+                    //High Rated Section
                     Text("High Rated")
                         .foregroundStyle(Color.white)
+                        .font(.system(size: 26, weight: .semibold))
                     
                     ZStack(alignment: .bottom){
-                        Image("image-placeholder")
+                        Image("topGun")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 600, height: 400)
+                            .frame(width: 366, height: 434)
                         VStack(alignment: .leading){
                             Text("#MovieName")
                                 .foregroundStyle(Color.black)
@@ -44,44 +47,49 @@ struct MovieView: View {
                     }
                     Image(systemName: "rectangle.and.pencil.and.ellipsis")
                         .foregroundStyle(Color.white)
-                    //rectangle.and.pencil.and.ellipsis
                     HStack{
+                        //Drama Section
                         Text("Drama")
                             .foregroundStyle(Color.white)
+                            .font(.system(size: 22, weight: .semibold))
                         Spacer()
                         Text("Show more")
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Color.mainYellow)
+                            .font(.system(size: 14, weight: .medium))
                     }
                     HStack{
-                        Image("image-placeholder")
+                        Image("shawshank")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
-                        Image("image-placeholder")
+                            .frame(width: 208, height: 275)
+                        Image("aStarIsBorn")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
+                            .frame(width: 208, height: 275)
                     }
                     HStack{
+                        //Comedy Section
                         Text("Comedy")
                             .foregroundStyle(Color.white)
+                            .font(.system(size: 22, weight: .semibold))
                         Spacer()
                         Text("Show more")
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Color.mainYellow)
+                            .font(.system(size: 14, weight: .medium))
                     }
                     HStack{
-                        Image("image-placeholder")
+                        Image("worldsGreatestDad")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
-                        Image("image-placeholder")
+                            .frame(width: 208, height: 275)
+                        Image("houseParty")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
+                            .frame(width: 208, height: 275)
                     }
 
                 }
-                .frame(width: 350)
+                
             }
         }
     }
