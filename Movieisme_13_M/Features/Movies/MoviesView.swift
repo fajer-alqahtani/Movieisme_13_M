@@ -12,7 +12,7 @@ struct MovieView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
 
-                // MARK: - Header
+                //Header
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         Text("Movies Center")
@@ -30,17 +30,17 @@ struct MovieView: View {
                 }
                 .padding(.horizontal)
 
-                // MARK: - High Rated
+                //High Rated
                 SectionHeader(title: "High Rated")
 
                 HighRatedCarousel()
 
-                // MARK: - Drama
+                //Drama
                 SectionHeader(title: "Drama", showMore: true)
 
                 MovieGrid()
 
-                // MARK: - Comedy
+                //Comedy
                 SectionHeader(title: "Comedy", showMore: true)
 
                 MovieGrid()
@@ -57,6 +57,8 @@ struct MovieView: View {
 }
 
 
+//MARK: - The views are segmented below
+//SearchBarView
 struct SearchBarView: View {
     var body: some View {
         HStack(spacing: 8) {
@@ -75,7 +77,7 @@ struct SearchBarView: View {
     }
 }
 
-
+//SectionHeader
 struct SectionHeader: View {
     let title: String
     var showMore: Bool = false
@@ -97,6 +99,7 @@ struct SectionHeader: View {
     }
 }
 
+//HighRatedCarousel
 struct HighRatedCarousel: View {
     var body: some View {
         TabView {
@@ -109,10 +112,11 @@ struct HighRatedCarousel: View {
     }
 }
 
+//HighRatedCard
 struct HighRatedCard: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image("topgun_placeholder")
+            Image("topGun")
                 .resizable()
                 .scaledToFill()
                 .frame(height: 420)
@@ -148,28 +152,31 @@ struct HighRatedCard: View {
     }
 }
 
-
+//MovieGrid
+//A grid is a layout system that arranges items in rows and columns.
 struct MovieGrid: View {
-
     let columns = [
+        //2 columns, Each column takes equal width
+        //Responsive to screen size
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
     ]
 
+    //LazyVGrid creates a vertical grid layout where:
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
-            MoviePoster()
-            MoviePoster()
-            MoviePoster()
-            MoviePoster()
+        
+        LazyHGrid(rows: columns, spacing: 16) {
+            MoviePoster(moviePoster: "topGun")
+            MoviePoster(moviePoster: "topGun")
         }
         .padding(.horizontal)
     }
 }
 
 struct MoviePoster: View {
+    let moviePoster: String
     var body: some View {
-        Image("movie_placeholder")
+        Image(moviePoster)
             .resizable()
             .scaledToFill()
             .frame(height: 240)
