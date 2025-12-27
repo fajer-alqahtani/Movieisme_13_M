@@ -10,37 +10,20 @@ import SwiftUI
 struct MovieDetailsView: View {
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-
-                // MARK: - Header Image
-                ZStack(alignment: .bottomLeading) {
-                    Image("shawshank") // Replace later with async image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 320)
-                        .clipped()
-
-                    LinearGradient(
-                        gradient: Gradient(colors: [.clear, .black.opacity(0.9)]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-
-                    Text("Shawshank")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding()
-                }
-
-                // MARK: - Movie Meta Info
+        ScrollView{
+            LazyVStack(alignment: .leading, spacing: 24) {
+                //Header Image
+                HeaderImage()
+                    .ignoresSafeArea(.all)
+                
+                //Movie Meta Info
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         InfoItem(title: "Duration", value: "2 hours 22 mins")
                         Spacer()
                         InfoItem(title: "Language", value: "English")
                     }
-
+                    
                     HStack {
                         InfoItem(title: "Genre", value: "Drama")
                         Spacer()
@@ -48,36 +31,40 @@ struct MovieDetailsView: View {
                     }
                 }
                 .padding(.horizontal)
-
-                // MARK: - Story
+                
+                //Story
                 SectionView(title: "Story") {
                     Text(
                         "In 1947, Andy Dufresne (Tim Robbins), a banker from Maine, is convicted of murdering his wife and her lover, a golf pro. Since the state of Maine has no death penalty, he is given two consecutive life sentences and sent to the notoriously harsh Shawshank Prison."
                     )
-                    .font(.body)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 15))
+                    .fontWeight(.medium)
+                    .foregroundColor(.dark4)
                 }
-
-                // MARK: - IMDb Rating
+                
+                //IMDb Rating
                 SectionView(title: "IMDb Rating") {
                     Text("9.3 / 10")
-                        .font(.title3)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 15))
+                        .fontWeight(.medium)
+                        .foregroundColor(.dark4)
                 }
-
-                // MARK: - Director
+                
+                //Director
                 SectionView(title: "Director") {
-                    HStack(spacing: 16) {
+                    VStack(spacing: 16) {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
-                            .frame(width: 56, height: 56)
-
+                            .frame(width: 76, height: 76)
+                        
                         Text("Frank Darabont")
-                            .font(.headline)
+                            .font(.system(size: 15))
+                            .fontWeight(.medium)
+                            .foregroundColor(.dark4)
                     }
                 }
-
-                // MARK: - Stars
+                
+                //Stars
                 SectionView(title: "Stars") {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 20) {
@@ -87,28 +74,38 @@ struct MovieDetailsView: View {
                         }
                     }
                 }
-
-                // MARK: - Rating & Reviews
+                Divider()
+                    .background(Color.dark4)
+                //Rating & Reviews
                 SectionView(title: "Rating & Reviews") {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("4.8")
                             .font(.largeTitle)
-                            .fontWeight(.bold)
-
+                            .foregroundColor(.dark4)
+                            .fontWeight(.semibold)
+                        
                         Text("out of 5")
-                            .foregroundColor(.secondary)
-
+                            .font(.system(size: 15))
+                            .foregroundColor(.dark4)
+                            .fontWeight(.semibold)
+                        
                         ReviewCard(
                             author: "Afnan Abdullah",
-                            review: "This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature."
+                            review: "This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature.",
+                            reviewDay: "Tuesday"
                         )
+                        .padding(.top, 16)
                     }
                 }
+                
             }
-            .padding(.bottom, 32)
+            //WriteAReviewButton
+            WriteAReviewButton()
+                .padding([.top,.bottom], 32)
         }
+        .coordinateSpace(name: "scroll")
         .background(Color.black.ignoresSafeArea())
-        .foregroundColor(.white)
+        .foregroundColor(.light1)
     }
 }
 
@@ -116,8 +113,30 @@ struct MovieDetailsView: View {
     MovieDetailsView()
 }
 
+// MARK: - Header Image
+private struct HeaderImage: View{
+     var body: some View {
+        
+            ZStack(alignment: .bottomLeading) {
+                Image("topGun")
+                    .resizable()
+                    .scaledToFill()
 
+                LinearGradient(
+                    gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
 
+                Text("Shawshank")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .padding()
+            }
+            .frame(height: 448)
+
+    }
+}
 
 // MARK: - Info Item
 struct InfoItem: View {
@@ -127,11 +146,13 @@ struct InfoItem: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(value)
                 .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.light1)
+            Text(value)
+                .font(.system(size: 16))
                 .fontWeight(.medium)
+                .foregroundColor(.dark4)
         }
     }
 }
@@ -164,10 +185,12 @@ struct StarView: View {
         VStack(spacing: 8) {
             Circle()
                 .fill(Color.gray.opacity(0.3))
-                .frame(width: 72, height: 72)
+                .frame(width: 76, height: 76)
 
             Text(name)
-                .font(.caption)
+                .font(.system(size: 15))
+                .fontWeight(.medium)
+                .foregroundColor(.dark4)
                 .multilineTextAlignment(.center)
         }
         .frame(width: 80)
@@ -178,25 +201,73 @@ struct StarView: View {
 struct ReviewCard: View {
     let author: String
     let review: String
+    let reviewDay: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Circle()
                     .fill(Color.gray.opacity(0.3))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 38, height: 38)
 
-                Text(author)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                VStack (alignment: .leading){
+                    Text(author)
+                        .font(.system(size: 13))
+                        .fontWeight(.semibold)
+                    HStack(spacing: 0) {
+                        Group{
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star")
+                            
+                        }
+                        .foregroundColor(.brandMain)
+                        .font(.system(size: 7.35))
+                    }
+                }
+                
             }
+            
 
             Text(review)
-                .font(.footnote)
-                .foregroundColor(.secondary)
+                .font(.system(size: 13))
+                .fontWeight(.regular)
+                .foregroundColor(.light1)
+            HStack{
+                Spacer()
+                Text(reviewDay)
+                    .font(.system(size: 13))
+                    .fontWeight(.regular)
+                    .foregroundColor(.dark4)
+                    .multilineTextAlignment(.trailing)
+            }
         }
         .padding()
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
+        .background(Color.dark1)
+        .cornerRadius(8)
+    }
+}
+
+
+//MARK: - Write a Review button
+struct WriteAReviewButton: View {
+    var body: some View {
+        Button {
+        } label:{
+            Image(systemName: "square.and.pencil")
+            Text("Write a review")
+                
+        }
+        .buttonStyle(.plain)
+        .foregroundColor(.brandMain)
+        .font(.system(size: 16))
+        .fontWeight(.regular)
+        .frame(width: 300, height: 50)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.brandMain, lineWidth: 1)
+        )
     }
 }
