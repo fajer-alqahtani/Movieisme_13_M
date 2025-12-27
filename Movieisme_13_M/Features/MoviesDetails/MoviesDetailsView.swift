@@ -67,7 +67,7 @@ struct MovieDetailsView: View {
                 //Stars
                 SectionView(title: "Stars") {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 20) {
+                        HStack(spacing: 16) {
                             StarView(name: "Tim Robbins")
                             StarView(name: "Morgan Freeman")
                             StarView(name: "Bob Gunton")
@@ -182,7 +182,7 @@ struct StarView: View {
     let name: String
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack{
             Circle()
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 76, height: 76)
@@ -193,7 +193,7 @@ struct StarView: View {
                 .foregroundColor(.dark4)
                 .multilineTextAlignment(.center)
         }
-        .frame(width: 80)
+        .frame(width:110)
     }
 }
 
