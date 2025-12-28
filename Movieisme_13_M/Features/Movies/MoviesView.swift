@@ -4,4 +4,194 @@
 //
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
+import SwiftUI
+struct MovieView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                //Header
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Movies Center")
+                            .font(.title2)
+                            .fontWeight(.bold)
+
+                        Spacer()
+
+                        Circle()
+                            .fill(Color.gray)
+                            .frame(width: 41, height: 41)
+                            .padding( .bottom, 8)
+                    }
+
+                    SearchBarView()
+                        .padding( .bottom, 16)
+                }
+                .padding(.horizontal)
+
+                //High Rated
+                SectionHeader(title: "High Rated", showMore: false)
+                HighRatedTab()
+
+                //Drama
+                SectionHeader(title: "Drama")
+                MovieRow()
+                    .padding(.bottom, 32)
+                
+                //Comedy
+                SectionHeader(title: "Comedy")
+                MovieRow()
+            }
+        }
+        .background(Color.black.ignoresSafeArea())
+        .foregroundColor(.light1)
+    }
+}
+
+#Preview {
+    MovieView()
+}
+
+
+//MARK: - Search Bar View
+private struct SearchBarView: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.dark3)
+
+            Text("Search for Movie name, actors ...")
+                .foregroundColor(.dark3)
+                .font(.subheadline)
+
+            Spacer()
+        }
+        .padding()
+        .background(Color.white.opacity(0.1))
+        .frame(width: 358, height: 36)
+        .cornerRadius(10)
+    }
+}
+//MARK: - Section Header View
+private struct SectionHeader: View {
+    let title: String
+    var showMore: Bool = true
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.title3)
+                .fontWeight(.semibold)
+
+            Spacer()
+
+            if showMore {
+                Button{}
+                    label: {
+                    Text("Show more")
+                        .font(.system(size: 14))
+                        .fontWeight(.medium)
+                        .foregroundColor(.brandMain)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+//MARK: - High Rated Tab View
+private struct HighRatedTab: View {
+    var body: some View {
+        TabView {
+            Group{
+                HighRatedCard()
+                HighRatedCard()
+                HighRatedCard()
+                
+            }
+            .frame(width: 355, height: 424)
+            .frame(maxHeight: .infinity, alignment: .top)
+        }
+        .frame(height: 488)
+        .tabViewStyle(.page(indexDisplayMode: .always))
+    }
+}
+//MARK: - High Rated Card View
+private struct HighRatedCard: View {
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image("topGun")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 355, height: 424)
+                .clipped()
+                .cornerRadius(8)
+
+            LinearGradient(
+                gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Top Gun")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                HStack(spacing: 0) {
+                    Group{
+                        Image(systemName: "star.fill")
+                        Image(systemName: "star.fill")
+                        Image(systemName: "star.fill")
+                        Image(systemName: "star.fill")
+                        Image(systemName: "star")
+                    }
+                    .foregroundColor(.brandMain)
+                    .font(.system(size: 7.35))
+                    
+                }
+                HStack (alignment: .bottom) {
+                    Text("4.8")
+                        .font(.system(size: 20))
+                        .fontWeight(.medium)
+                    Text("out of 5")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+
+                Text("Action • 2 hr 9 min")
+                    .font(.caption)
+                    .foregroundColor(.dark4)
+            }
+            .padding([.leading, .bottom], 13)
+        }
+        .padding(.horizontal)
+    }
+}
+//MARK: - Movie Row View of Posters
+private struct MovieRow: View {
+    var body: some View {
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 18) {
+                MoviePoster(moviePoster: "topGun")
+                MoviePoster(moviePoster: "topGun")
+                MoviePoster(moviePoster: "topGun")
+                MoviePoster(moviePoster: "topGun")
+            }
+            .padding(.horizontal)
+            
+            
+        }
+    }
+}
+//MARK: - Movie Poster View
+private struct MoviePoster: View {
+    let moviePoster: String
+    var body: some View {
+        Image(moviePoster)
+            .resizable()
+            .scaledToFill()
+            .frame(width: 208,height: 275)
+            .cornerRadius(8)
+    }
+}
 
