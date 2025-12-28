@@ -14,7 +14,7 @@ struct MovieDetailsView: View {
             LazyVStack(alignment: .leading, spacing: 24) {
                 //Header Image
                 HeaderImage()
-                    .ignoresSafeArea(.all)
+                    .padding(.top, -60)
                 
                 //Movie Meta Info
                 VStack(alignment: .leading, spacing: 16) {
@@ -158,10 +158,14 @@ struct InfoItem: View {
 }
 
 // MARK: - Section Wrapper
+//Declares a generic SwiftUI view
+//<Content: View> means it can hold any SwiftUI view(s) as its content
 struct SectionView<Content: View>: View {
     let title: String
     let content: Content
-
+    
+    //Custom initializer lets you pass the section’s content as a closure
+    //@ViewBuilder allows multiple views inside the closure without wrapping them in a single container manually
     init(title: String, @ViewBuilder content: () -> Content) {
         self.title = title
         self.content = content()
@@ -197,7 +201,7 @@ struct StarView: View {
     }
 }
 
-// MARK: - Review Card
+// MARK: - Review Card (NEEDS A MODEL TO IMPLEMENT THE SWIPTING CARDS)
 struct ReviewCard: View {
     let author: String
     let review: String
@@ -227,10 +231,7 @@ struct ReviewCard: View {
                         .font(.system(size: 7.35))
                     }
                 }
-                
             }
-            
-
             Text(review)
                 .font(.system(size: 13))
                 .fontWeight(.regular)
