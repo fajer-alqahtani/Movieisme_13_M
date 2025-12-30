@@ -10,7 +10,7 @@ import SwiftUI
 struct MovieDetailsView: View {
     @State private var showAddReview = false
     let movieId: Int
-
+    
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 24) {
@@ -94,82 +94,64 @@ struct MovieDetailsView: View {
                         ReviewCard(
                             author: "Afnan Abdullah",
                             review: "This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature.",
-                            reviewDay: "Tuesday"
+                            reviewDay: "Tuesday", rating: 13
                         )
                         .padding(.top, 16)
                     }
-
-                //Rating & Reviews (Updated: mock now, ready for API later)
-                SectionView(title: "Rating & Reviews") {
-                    ReviewsSection()
+                    
+                    //Rating & Reviews (Updated: mock now, ready for API later)
+                    SectionView(title: "Rating & Reviews") {
+                        ReviewsSection()
+                    }
+                    
                 }
+                //WriteAReviewButton
+                WriteAReviewButton(action: {})
+                    .padding([.top,.bottom], 32)
+                WriteAReviewButton {
+                    showAddReview = true
+                }
+                .sheet(isPresented: $showAddReview) {
+                    AddReviewView(movieId: movieId)
+                }
+                .padding([.top,.bottom], 32)
                 
             }
-            //WriteAReviewButton
-            WriteAReviewButton()
-                .padding([.top,.bottom], 32)
-            WriteAReviewButton {
-                showAddReview = true
-            }
-            .sheet(isPresented: $showAddReview) {
-                AddReviewView(movieId: movieId)
-            }
-            .padding([.top,.bottom], 32)
-            
+            .coordinateSpace(name: "scroll")
+            .background(Color.black.ignoresSafeArea())
+            .foregroundColor(.light1)
         }
-        .coordinateSpace(name: "scroll")
-        .background(Color.black.ignoresSafeArea())
-        .foregroundColor(.light1)
     }
 }
 
 #Preview {
-    MovieDetailsView()
+//    MovieDetailsView()
     MovieDetailsView(movieId: 1)
 }
 
 // MARK: - Header Image
-private struct HeaderImage: View{
-     var body: some View {
-        
+    private struct HeaderImage: View{
+        var body: some View {
+            
             ZStack(alignment: .bottomLeading) {
                 Image("topGun")
                     .resizable()
                     .scaledToFill()
-
+                
                 LinearGradient(
                     gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
                     startPoint: .top,
                     endPoint: .bottom
                 )
-
+                
                 Text("Shawshank")
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding()
             }
             .frame(height: 448)
-
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            Image("topGun")
-                .resizable()
-                .scaledToFill()
-
-            LinearGradient(
-                gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-
-            Text("Shawshank")
-                .font(.title2)
-                .fontWeight(.bold)
-                .padding()
         }
-        .frame(height: 448)
     }
-}
 
 // MARK: - Info Item
 struct InfoItem: View {
@@ -253,31 +235,16 @@ struct ReviewCard: View {
                     Text(author)
                         .font(.system(size: 13))
                         .fontWeight(.semibold)
-                    HStack(spacing: 0) {
-                        Group{
-                            Image(systemName: "star.fill")
-                            Image(systemName: "star.fill")
-                            Image(systemName: "star.fill")
-                            Image(systemName: "star.fill")
-                            Image(systemName: "star")
-                            
-                        }
+                }
+            }
+
+            HStack(spacing: 2) {
+                ForEach(1...5, id: \.self) { i in
+                    Image(systemName: i <= rating ? "star.fill" : "star")
                         .foregroundColor(.brandMain)
                         .font(.system(size: 7.35))
-                    }
                 }
             }
-
-                    HStack(spacing: 2) {
-                        ForEach(1...5, id: \.self) { i in
-                            Image(systemName: i <= rating ? "star.fill" : "star")
-                                .foregroundColor(.brandMain)
-                                .font(.system(size: 7.35))
-                        }
-                    }
-                }
-            }
-
             Text(review)
                 .font(.system(size: 13))
                 .fontWeight(.regular)
@@ -297,15 +264,6 @@ struct ReviewCard: View {
         .cornerRadius(8)
     }
 }
-
-
-//MARK: - Write a Review button
-struct WriteAReviewButton: View {
-    var body: some View {
-        Button {
-        } label:{
-            Image(systemName: "square.and.pencil")
-            Text("Write a review")
                 
 //MARK: - Write a Review button
 struct WriteAReviewButton: View {
