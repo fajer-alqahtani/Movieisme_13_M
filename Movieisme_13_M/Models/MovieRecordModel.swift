@@ -4,6 +4,7 @@
 //
 //  Created by Yousra Abdelrahman on 08/07/1447 AH.
 //
+//Second Layer of JSON
 struct MovieRecordModel: Codable, Identifiable {
     let id: String
     let fields: MovieModel

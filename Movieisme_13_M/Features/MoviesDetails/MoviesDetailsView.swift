@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MovieDetailsView: View {
+    @State private var showAddReview = false
+    let movieId: Int
 
     var body: some View {
         ScrollView{
@@ -96,12 +98,24 @@ struct MovieDetailsView: View {
                         )
                         .padding(.top, 16)
                     }
+
+                //Rating & Reviews (Updated: mock now, ready for API later)
+                SectionView(title: "Rating & Reviews") {
+                    ReviewsSection()
                 }
                 
             }
             //WriteAReviewButton
             WriteAReviewButton()
                 .padding([.top,.bottom], 32)
+            WriteAReviewButton {
+                showAddReview = true
+            }
+            .sheet(isPresented: $showAddReview) {
+                AddReviewView(movieId: movieId)
+            }
+            .padding([.top,.bottom], 32)
+            
         }
         .coordinateSpace(name: "scroll")
         .background(Color.black.ignoresSafeArea())
@@ -111,6 +125,7 @@ struct MovieDetailsView: View {
 
 #Preview {
     MovieDetailsView()
+    MovieDetailsView(movieId: 1)
 }
 
 // MARK: - Header Image
@@ -135,6 +150,24 @@ private struct HeaderImage: View{
             }
             .frame(height: 448)
 
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image("topGun")
+                .resizable()
+                .scaledToFill()
+
+            LinearGradient(
+                gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            Text("Shawshank")
+                .font(.title2)
+                .fontWeight(.bold)
+                .padding()
+        }
+        .frame(height: 448)
     }
 }
 
@@ -202,10 +235,12 @@ struct StarView: View {
 }
 
 // MARK: - Review Card (NEEDS A MODEL TO IMPLEMENT THE SWIPTING CARDS)
+// MARK: - Review Card
 struct ReviewCard: View {
     let author: String
     let review: String
     let reviewDay: String
+    let rating: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -232,10 +267,22 @@ struct ReviewCard: View {
                     }
                 }
             }
+
+                    HStack(spacing: 2) {
+                        ForEach(1...5, id: \.self) { i in
+                            Image(systemName: i <= rating ? "star.fill" : "star")
+                                .foregroundColor(.brandMain)
+                                .font(.system(size: 7.35))
+                        }
+                    }
+                }
+            }
+
             Text(review)
                 .font(.system(size: 13))
                 .fontWeight(.regular)
                 .foregroundColor(.light1)
+
             HStack{
                 Spacer()
                 Text(reviewDay)
@@ -260,6 +307,16 @@ struct WriteAReviewButton: View {
             Image(systemName: "square.and.pencil")
             Text("Write a review")
                 
+//MARK: - Write a Review button
+struct WriteAReviewButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            Image(systemName: "square.and.pencil")
+            Text("Write a review")
         }
         .buttonStyle(.plain)
         .foregroundColor(.brandMain)
@@ -272,3 +329,64 @@ struct WriteAReviewButton: View {
         )
     }
 }
+
+// MARK: - Reviews Section (Mock now, ready for API later)
+private struct ReviewsSection: View {
+
+    // Dummy reviews for now (replace later with API data)
+    private let reviews: [MockReview] = [
+        MockReview(
+            author: "Afnan Abdullah",
+            review: "This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature.",
+            day: "Tuesday",
+            rating: 4
+        ),
+        MockReview(
+            author: "Sarah Abdullah",
+            review: "Great movie. The acting is strong and the story stays with you.",
+            day: "Yesterday",
+            rating: 5
+        ),
+        MockReview(
+            author: "Dana Mohammed",
+            review: "Loved the soundtrack and the cinematography. Very immersive!",
+            day: "Monday",
+            rating: 4
+        )
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+
+            Text("4.8")
+                .font(.largeTitle)
+                .foregroundColor(.dark4)
+                .fontWeight(.semibold)
+
+            Text("out of 5")
+                .font(.system(size: 15))
+                .foregroundColor(.dark4)
+                .fontWeight(.semibold)
+
+            // Swipe reviews horizontally
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(reviews) { r in
+                        ReviewCard(
+                            author: r.author,
+                            review: r.review,
+                            reviewDay: r.day,
+                            rating: r.rating
+                        )
+                        .frame(width: 320)
+                    }
+                }
+                .padding(.top, 16)
+                .padding(.horizontal, 2)
+            }
+        }
+    }
+}
+
+
+
