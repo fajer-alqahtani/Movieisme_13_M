@@ -78,6 +78,26 @@ struct MovieDetailsView: View {
                 }
                 Divider()
                     .background(Color.dark4)
+                //Rating & Reviews
+                SectionView(title: "Rating & Reviews") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("4.8")
+                            .font(.largeTitle)
+                            .foregroundColor(.dark4)
+                            .fontWeight(.semibold)
+                        
+                        Text("out of 5")
+                            .font(.system(size: 15))
+                            .foregroundColor(.dark4)
+                            .fontWeight(.semibold)
+                        
+                        ReviewCard(
+                            author: "Afnan Abdullah",
+                            review: "This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature.",
+                            reviewDay: "Tuesday"
+                        )
+                        .padding(.top, 16)
+                    }
 
                 //Rating & Reviews (Updated: mock now, ready for API later)
                 SectionView(title: "Rating & Reviews") {
@@ -86,6 +106,8 @@ struct MovieDetailsView: View {
                 
             }
             //WriteAReviewButton
+            WriteAReviewButton()
+                .padding([.top,.bottom], 32)
             WriteAReviewButton {
                 showAddReview = true
             }
@@ -102,11 +124,32 @@ struct MovieDetailsView: View {
 }
 
 #Preview {
+    MovieDetailsView()
     MovieDetailsView(movieId: 1)
 }
 
 // MARK: - Header Image
 private struct HeaderImage: View{
+     var body: some View {
+        
+            ZStack(alignment: .bottomLeading) {
+                Image("topGun")
+                    .resizable()
+                    .scaledToFill()
+
+                LinearGradient(
+                    gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                Text("Shawshank")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .padding()
+            }
+            .frame(height: 448)
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Image("topGun")
@@ -148,10 +191,14 @@ struct InfoItem: View {
 }
 
 // MARK: - Section Wrapper
+//Declares a generic SwiftUI view
+//<Content: View> means it can hold any SwiftUI view(s) as its content
 struct SectionView<Content: View>: View {
     let title: String
     let content: Content
     
+    //Custom initializer lets you pass the section’s content as a closure
+    //@ViewBuilder allows multiple views inside the closure without wrapping them in a single container manually
     init(title: String, @ViewBuilder content: () -> Content) {
         self.title = title
         self.content = content()
@@ -187,6 +234,7 @@ struct StarView: View {
     }
 }
 
+// MARK: - Review Card (NEEDS A MODEL TO IMPLEMENT THE SWIPTING CARDS)
 // MARK: - Review Card
 struct ReviewCard: View {
     let author: String
@@ -205,6 +253,20 @@ struct ReviewCard: View {
                     Text(author)
                         .font(.system(size: 13))
                         .fontWeight(.semibold)
+                    HStack(spacing: 0) {
+                        Group{
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star.fill")
+                            Image(systemName: "star")
+                            
+                        }
+                        .foregroundColor(.brandMain)
+                        .font(.system(size: 7.35))
+                    }
+                }
+            }
 
                     HStack(spacing: 2) {
                         ForEach(1...5, id: \.self) { i in
@@ -227,6 +289,7 @@ struct ReviewCard: View {
                     .font(.system(size: 13))
                     .fontWeight(.regular)
                     .foregroundColor(.dark4)
+                    .multilineTextAlignment(.trailing)
             }
         }
         .padding()
@@ -235,6 +298,15 @@ struct ReviewCard: View {
     }
 }
 
+
+//MARK: - Write a Review button
+struct WriteAReviewButton: View {
+    var body: some View {
+        Button {
+        } label:{
+            Image(systemName: "square.and.pencil")
+            Text("Write a review")
+                
 //MARK: - Write a Review button
 struct WriteAReviewButton: View {
     let action: () -> Void
