@@ -25,7 +25,7 @@ struct Movieisme_13_MApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MovieView()
+            MoviesView()
         }
         .modelContainer(sharedModelContainer)
     }

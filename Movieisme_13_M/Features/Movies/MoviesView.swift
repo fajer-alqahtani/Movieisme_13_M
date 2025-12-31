@@ -5,7 +5,8 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
 import SwiftUI
-struct MovieView: View {
+struct MoviesView: View {
+    @StateObject private var movieVM = MovieViewModel()
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -15,55 +16,50 @@ struct MovieView: View {
                         Text("Movies Center")
                             .font(.title2)
                             .fontWeight(.bold)
-
                         Spacer()
-
                         Circle()
                             .fill(Color.gray)
                             .frame(width: 41, height: 41)
                             .padding( .bottom, 8)
                     }
-
                     SearchBarView()
                         .padding( .bottom, 16)
                 }
                 .padding(.horizontal)
-
                 //High Rated
                 SectionHeader(title: "High Rated", showMore: false)
                 HighRatedTab()
-
                 //Drama
                 SectionHeader(title: "Drama")
-                MovieRow()
+                //Data from API
+                MovieRow(movies: movieVM.movies)
                     .padding(.bottom, 32)
-                
                 //Comedy
                 SectionHeader(title: "Comedy")
-                MovieRow()
+                //Data from API
+                MovieRow(movies: movieVM.movies)
             }
+        }
+        //A modifier, runs once when the view appears. Safe place to call async code.
+        .task {
+            await movieVM.loadMovies()
         }
         .background(Color.black.ignoresSafeArea())
         .foregroundColor(.light1)
     }
 }
-
 #Preview {
-    MovieView()
+    MoviesView()
 }
-
-
 //MARK: - Search Bar View
 private struct SearchBarView: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.dark3)
-
             Text("Search for Movie name, actors ...")
                 .foregroundColor(.dark3)
                 .font(.subheadline)
-
             Spacer()
         }
         .padding()
@@ -76,15 +72,12 @@ private struct SearchBarView: View {
 private struct SectionHeader: View {
     let title: String
     var showMore: Bool = true
-
     var body: some View {
         HStack {
             Text(title)
                 .font(.title3)
                 .fontWeight(.semibold)
-
             Spacer()
-
             if showMore {
                 Button{}
                     label: {
@@ -106,7 +99,6 @@ private struct HighRatedTab: View {
                 HighRatedCard()
                 HighRatedCard()
                 HighRatedCard()
-                
             }
             .frame(width: 355, height: 424)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -125,18 +117,15 @@ private struct HighRatedCard: View {
                 .frame(width: 355, height: 424)
                 .clipped()
                 .cornerRadius(8)
-
             LinearGradient(
                 gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
                 startPoint: .top,
                 endPoint: .bottom
             )
-
             VStack(alignment: .leading, spacing: 6) {
                 Text("Top Gun")
                     .font(.title2)
                     .fontWeight(.bold)
-
                 HStack(spacing: 0) {
                     Group{
                         Image(systemName: "star.fill")
@@ -147,7 +136,6 @@ private struct HighRatedCard: View {
                     }
                     .foregroundColor(.brandMain)
                     .font(.system(size: 7.35))
-                    
                 }
                 HStack (alignment: .bottom) {
                     Text("4.8")
@@ -157,7 +145,6 @@ private struct HighRatedCard: View {
                         .font(.caption)
                         .fontWeight(.medium)
                 }
-
                 Text("Action • 2 hr 9 min")
                     .font(.caption)
                     .foregroundColor(.dark4)
@@ -169,29 +156,37 @@ private struct HighRatedCard: View {
 }
 //MARK: - Movie Row View of Posters
 private struct MovieRow: View {
+    let movies: [MovieModel]
     var body: some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 18) {
-                MoviePoster(moviePoster: "topGun")
-                MoviePoster(moviePoster: "topGun")
-                MoviePoster(moviePoster: "topGun")
-                MoviePoster(moviePoster: "topGun")
+                //id: \.id identifier
+                ForEach(movies, id: \.id) { movie in
+                    MoviePoster(movie: movie)
+                }
             }
             .padding(.horizontal)
-            
-            
         }
     }
 }
 //MARK: - Movie Poster View
 private struct MoviePoster: View {
-    let moviePoster: String
+    let movie: MovieModel
     var body: some View {
-        Image(moviePoster)
-            .resizable()
-            .scaledToFill()
-            .frame(width: 208,height: 275)
+        VStack(alignment: .leading) {
+            //AsyncImage downloads image from the internet
+            AsyncImage(url: URL(string: movie.poster)) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(width: 208, height: 275)
             .cornerRadius(8)
+            Text(movie.name)
+                .font(.caption)
+                .lineLimit(1)
+        }
     }
 }
-

@@ -4,25 +4,20 @@
 //
 //  Created by Yousra Abdelrahman on 08/07/1447 AH.
 //
-
 import Combine
 import Foundation
-
+//Main Actor for ViewModels
 @MainActor
-final class MoviesViewModel: ObservableObject {
-
+//final means this class can't be subclassed
+final class MovieViewModel: ObservableObject {
     @Published var movies: [MovieModel] = []
-
-    func fetchMovies() async {
-        do {
-            let url = URL(string: "YOUR_API_URL/movies")!
-            let (data, _) = try await URLSession.shared.data(from: url)
-
-            let response = try JSONDecoder().decode(MoviesResponseModel.self, from: data)
-            self.movies = response.records.map { $0.fields }
-
-        } catch {
-            print("Failed to fetch movies:", error)
-        }
+    func loadMovies() async {
+            do {
+                //Returns [MovieModel]
+                movies = try await fetchMovies()
+                print("✅ Movies loaded:", movies.count)
+            } catch {
+                print("❌ Failed:", error)
+            }
     }
 }
