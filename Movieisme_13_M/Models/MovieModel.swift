@@ -6,14 +6,25 @@
 //Third Layer of JSON
 //
 import Foundation
-struct MovieModel: Identifiable, Codable {
-    let id = UUID()   // for SwiftUI
+struct MovieModel: Codable {
     let name: String
     let poster: String
+    let story: String
+    let runtime: String
     let genre: [String]
+    let rating: String
+    let imdbRating: Double
+    let language: [String]
+
     enum CodingKeys: String, CodingKey {
         case name
         case poster
+        case story
+        case runtime
         case genre
+        case rating
+        case imdbRating = "IMDb_rating"
+        case language
     }
 }
+
