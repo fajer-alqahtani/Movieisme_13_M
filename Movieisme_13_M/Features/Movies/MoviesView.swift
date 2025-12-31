@@ -7,6 +7,7 @@
 import SwiftUI
 struct MoviesView: View {
     @StateObject private var movieVM = MovieViewModel()
+    @State private var searchText: String = ""
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -22,23 +23,35 @@ struct MoviesView: View {
                             .frame(width: 41, height: 41)
                             .padding( .bottom, 8)
                     }
-                    SearchBarView()
+                    SearchBarView(text: $searchText)
                         .padding( .bottom, 16)
+
+                    
                 }
                 .padding(.horizontal)
-                //High Rated
-                SectionHeader(title: "High Rated", showMore: false)
-                HighRatedTab(movies: movieVM.highRatedMovies)
-                //movies: movieVM.highRatedMovies
-                //Drama
-                SectionHeader(title: "Drama")
-                //Data from API
-                MovieRow(movies: movieVM.dramaMovies)
-                    .padding(.bottom, 32)
-                //Comedy
-                SectionHeader(title: "Comedy")
-                //Data from API
-                MovieRow(movies: movieVM.comedyMovies)
+                
+                if !searchText.isEmpty {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ForEach(movieVM.filteredMovies(searchText: searchText), id: \.name) { movie in
+                            MoviePoster(movie: movie)
+                        }
+                    }
+                    .padding(.horizontal)
+                } else {
+                    //High Rated
+                    SectionHeader(title: "High Rated", showMore: false)
+                    HighRatedTab(movies: movieVM.highRatedMovies)
+                    //movies: movieVM.highRatedMovies
+                    //Drama
+                    SectionHeader(title: "Drama")
+                    //Data from API
+                    MovieRow(movies: movieVM.dramaMovies)
+                        .padding(.bottom, 32)
+                    //Comedy
+                    SectionHeader(title: "Comedy")
+                    //Data from API
+                    MovieRow(movies: movieVM.comedyMovies)
+                }
             }
         }
         //A modifier, runs once when the view appears. Safe place to call async code.
@@ -54,12 +67,14 @@ struct MoviesView: View {
 }
 //MARK: - Search Bar View
 private struct SearchBarView: View {
+    @Binding var text: String
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.dark3)
-            Text("Search for Movie name, actors ...")
-                .foregroundColor(.dark3)
+            TextField("Search for Movie name, actors ..." , text: $text)
+                .foregroundColor(.dark4)
                 .font(.subheadline)
             Spacer()
         }
@@ -146,7 +161,7 @@ private struct HighRatedCard: View {
                     Text(String(format: "%.1f", movie.imdbRating))
                         .font(.system(size: 20))
                         .fontWeight(.medium)
-                    Text("out of 5")
+                    Text("out of 10")
                         .font(.caption)
                         .fontWeight(.medium)
                 }

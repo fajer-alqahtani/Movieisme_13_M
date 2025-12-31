@@ -15,23 +15,38 @@ final class MovieViewModel: ObservableObject {
     var dramaMovies: [MovieModel] {
         movies.filter { $0.genre.contains("Drama") }
     }
-
+    
     var comedyMovies: [MovieModel] {
         movies.filter { $0.genre.contains("Comedy") }
     }
-
+    
     var highRatedMovies: [MovieModel] {
         movies.filter { $0.imdbRating >= 9.0 }
     }
-
+    
     
     func loadMovies() async {
-            do {
-                //Returns [MovieModel]
-                movies = try await fetchMovies()
-                print("✅ Movies loaded:", movies.count)
-            } catch {
-                print("❌ Failed:", error)
-            }
+        do {
+            //Returns [MovieModel]
+            movies = try await fetchMovies()
+            print("✅ Movies loaded:", movies.count)
+        } catch {
+            print("❌ Failed:", error)
+        }
+    }
+    
+    func filteredMovies(searchText: String) -> [MovieModel] {
+        guard !searchText.isEmpty else { return movies }
+        
+        return movies.filter { movie in
+            // check name
+            movie.name.localizedCaseInsensitiveContains(searchText)
+            // or genre
+            || movie.genre.contains(where: { $0.localizedCaseInsensitiveContains(searchText) })
+            // or language
+            || movie.language.contains(where: { $0.localizedCaseInsensitiveContains(searchText) })
+            // or IMDb rating
+            || String(movie.imdbRating).contains(searchText)
+        }
     }
 }
