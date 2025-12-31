@@ -28,16 +28,17 @@ struct MoviesView: View {
                 .padding(.horizontal)
                 //High Rated
                 SectionHeader(title: "High Rated", showMore: false)
-                HighRatedTab()
+                HighRatedTab(movies: movieVM.highRatedMovies)
+                //movies: movieVM.highRatedMovies
                 //Drama
                 SectionHeader(title: "Drama")
                 //Data from API
-                MovieRow(movies: movieVM.movies)
+                MovieRow(movies: movieVM.dramaMovies)
                     .padding(.bottom, 32)
                 //Comedy
                 SectionHeader(title: "Comedy")
                 //Data from API
-                MovieRow(movies: movieVM.movies)
+                MovieRow(movies: movieVM.comedyMovies)
             }
         }
         //A modifier, runs once when the view appears. Safe place to call async code.
@@ -93,12 +94,12 @@ private struct SectionHeader: View {
 }
 //MARK: - High Rated Tab View
 private struct HighRatedTab: View {
+    let movies: [MovieModel]
+    
     var body: some View {
         TabView {
-            Group{
-                HighRatedCard()
-                HighRatedCard()
-                HighRatedCard()
+            ForEach(movies, id: \.name) { movie in
+                HighRatedCard(movie: movie)
             }
             .frame(width: 355, height: 424)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -109,43 +110,48 @@ private struct HighRatedTab: View {
 }
 //MARK: - High Rated Card View
 private struct HighRatedCard: View {
+    let movie: MovieModel
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image("topGun")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 355, height: 424)
-                .clipped()
-                .cornerRadius(8)
+            AsyncImage(url: URL(string: movie.poster)) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(width: 355, height: 424)
+            .clipped()
+            .cornerRadius(8)
+
             LinearGradient(
                 gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
                 startPoint: .top,
                 endPoint: .bottom
             )
+
             VStack(alignment: .leading, spacing: 6) {
-                Text("Top Gun")
+                Text(movie.name)
                     .font(.title2)
                     .fontWeight(.bold)
+
                 HStack(spacing: 0) {
-                    Group{
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star")
+                    ForEach(0..<5) { index in
+                        Image(systemName: index < Int(movie.imdbRating/2) ? "star.fill" : "star")
                     }
                     .foregroundColor(.brandMain)
                     .font(.system(size: 7.35))
                 }
-                HStack (alignment: .bottom) {
-                    Text("4.8")
+
+                HStack(alignment: .bottom) {
+                    Text(String(format: "%.1f", movie.imdbRating))
                         .font(.system(size: 20))
                         .fontWeight(.medium)
                     Text("out of 5")
                         .font(.caption)
                         .fontWeight(.medium)
                 }
-                Text("Action • 2 hr 9 min")
+
+                Text("\(movie.genre.joined(separator: " • ")) • \(movie.runtime)")
                     .font(.caption)
                     .foregroundColor(.dark4)
             }
@@ -154,6 +160,7 @@ private struct HighRatedCard: View {
         .padding(.horizontal)
     }
 }
+
 //MARK: - Movie Row View of Posters
 private struct MovieRow: View {
     let movies: [MovieModel]
@@ -161,7 +168,7 @@ private struct MovieRow: View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 18) {
                 //id: \.id identifier
-                ForEach(movies, id: \.id) { movie in
+                ForEach(movies, id: \.name) { movie in
                     MoviePoster(movie: movie)
                 }
             }
