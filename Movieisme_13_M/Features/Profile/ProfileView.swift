@@ -5,3 +5,85 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
 
+import SwiftUI
+
+struct ProfileView: View {
+    @State var savedMovies: [String] = []
+    @State var movies: [String] = []
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Image(systemName: "arrow.left")
+                    .font(.system(size: 25))
+                    .foregroundColor(.yellow)
+                Text("Back")
+                    .font(.system(size: 20))
+                    .foregroundColor(.yellow)
+            }
+            Text("Profile")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+
+            ZStack {
+                Rectangle()
+                    .frame(width: 390, height: 80)
+                    .foregroundColor(.gray.opacity(0.2))
+                    .cornerRadius(10)
+                
+                HStack {
+                    Image("avatar")
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Sarah Abdullah")
+                            .font(.system(size: 18))
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        Text("Xxxx234@gmail.com")
+                            .foregroundColor(.white)
+                            .font(.system(size: 12))
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .padding(.horizontal, 16)
+            }
+            Text("Saved movies")
+                .font(.system(size: 22))
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+
+            Spacer()
+
+            if savedMovies.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "video.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 64, height: 64)
+                        .foregroundColor(.white.opacity(0.13))
+                    Text("No saved movies yet, start save your favourites")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white.opacity(0.45))
+                        .frame(width: 260)
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                // عرض الأفلام المحفوظة هنا لاحقًا
+            }
+
+            Spacer()
+        }
+        .padding(.top, 48)
+        .padding(.horizontal, 24)
+        .background(Color.black.ignoresSafeArea())
+    }
+}
+
+#Preview {
+    ProfileView()
+        .preferredColorScheme(.dark)
+}

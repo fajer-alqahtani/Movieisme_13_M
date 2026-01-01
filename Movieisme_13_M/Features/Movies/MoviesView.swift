@@ -5,175 +5,210 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
 import SwiftUI
-
-struct MovieView: View {
-
+struct MoviesView: View {
+    @StateObject private var movieVM = MovieViewModel()
+    @State private var searchText: String = ""
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-
-                // MARK: - Header
-                VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading) {
+                //Header
+                VStack(alignment: .leading) {
                     HStack {
                         Text("Movies Center")
-                            .font(.largeTitle)
+                            .font(.title2)
                             .fontWeight(.bold)
-
                         Spacer()
-
                         Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 36, height: 36)
+                            .fill(Color.gray)
+                            .frame(width: 41, height: 41)
+                            .padding( .bottom, 8)
                     }
+                    SearchBarView(text: $searchText)
+                        .padding( .bottom, 16)
 
-                    SearchBarView()
+                    
                 }
                 .padding(.horizontal)
-
-                // MARK: - High Rated
-                SectionHeader(title: "High Rated")
-
-                HighRatedCarousel()
-
-                // MARK: - Drama
-                SectionHeader(title: "Drama", showMore: true)
-
-                MovieGrid()
-
-                // MARK: - Comedy
-                SectionHeader(title: "Comedy", showMore: true)
-
-                MovieGrid()
+                
+                if !searchText.isEmpty {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ForEach(movieVM.filteredMovies(searchText: searchText), id: \.name) { movie in
+                            MoviePoster(movie: movie)
+                        }
+                    }
+                    .padding(.horizontal)
+                } else {
+                    //High Rated
+                    SectionHeader(title: "High Rated", showMore: false)
+                    HighRatedTab(movies: movieVM.highRatedMovies)
+                    //movies: movieVM.highRatedMovies
+                    //Drama
+                    SectionHeader(title: "Drama")
+                    //Data from API
+                    MovieRow(movies: movieVM.dramaMovies)
+                        .padding(.bottom, 32)
+                    //Comedy
+                    SectionHeader(title: "Comedy")
+                    //Data from API
+                    MovieRow(movies: movieVM.comedyMovies)
+                }
             }
-            .padding(.bottom, 32)
+        }
+        //A modifier, runs once when the view appears. Safe place to call async code.
+        .task {
+            await movieVM.loadMovies()
         }
         .background(Color.black.ignoresSafeArea())
-        .foregroundColor(.white)
+        .foregroundColor(.light1)
     }
 }
-
 #Preview {
-    MovieView()
+    MoviesView()
 }
-
-
-struct SearchBarView: View {
+//MARK: - Search Bar View
+private struct SearchBarView: View {
+    @Binding var text: String
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-
-            Text("Search for Movie name, actors ...")
-                .foregroundColor(.secondary)
+                .foregroundColor(.dark3)
+            TextField("Search for Movie name, actors ..." , text: $text)
+                .foregroundColor(.dark4)
                 .font(.subheadline)
-
             Spacer()
         }
         .padding()
         .background(Color.white.opacity(0.1))
-        .cornerRadius(12)
+        .frame(width: 358, height: 36)
+        .cornerRadius(10)
     }
 }
-
-
-struct SectionHeader: View {
+//MARK: - Section Header View
+private struct SectionHeader: View {
     let title: String
-    var showMore: Bool = false
-
+    var showMore: Bool = true
     var body: some View {
         HStack {
             Text(title)
-                .font(.headline)
-
+                .font(.title3)
+                .fontWeight(.semibold)
             Spacer()
-
             if showMore {
-                Text("Show more")
-                    .font(.caption)
-                    .foregroundColor(.yellow)
+                Button{}
+                    label: {
+                    Text("Show more")
+                        .font(.system(size: 14))
+                        .fontWeight(.medium)
+                        .foregroundColor(.brandMain)
+                }
             }
         }
         .padding(.horizontal)
     }
 }
-
-struct HighRatedCarousel: View {
+//MARK: - High Rated Tab View
+private struct HighRatedTab: View {
+    let movies: [MovieModel]
+    
     var body: some View {
         TabView {
-            HighRatedCard()
-            HighRatedCard()
-            HighRatedCard()
+            ForEach(movies, id: \.name) { movie in
+                HighRatedCard(movie: movie)
+            }
+            .frame(width: 355, height: 424)
+            .frame(maxHeight: .infinity, alignment: .top)
         }
-        .frame(height: 420)
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+        .frame(height: 488)
+        .tabViewStyle(.page(indexDisplayMode: .always))
     }
 }
+//MARK: - High Rated Card View
+private struct HighRatedCard: View {
+    let movie: MovieModel
 
-struct HighRatedCard: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image("topgun_placeholder")
-                .resizable()
-                .scaledToFill()
-                .frame(height: 420)
-                .clipped()
-                .cornerRadius(20)
+            AsyncImage(url: URL(string: movie.poster)) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(width: 355, height: 424)
+            .clipped()
+            .cornerRadius(8)
 
             LinearGradient(
-                gradient: Gradient(colors: [.clear, .black.opacity(0.9)]),
+                gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
                 startPoint: .top,
                 endPoint: .bottom
             )
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Top Gun")
-                    .font(.title)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(movie.name)
+                    .font(.title2)
                     .fontWeight(.bold)
 
-                HStack(spacing: 6) {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.yellow)
-
-                    Text("4.8 out of 5")
-                        .font(.caption)
+                HStack(spacing: 0) {
+                    ForEach(0..<5) { index in
+                        Image(systemName: index < Int(movie.imdbRating/2) ? "star.fill" : "star")
+                    }
+                    .foregroundColor(.brandMain)
+                    .font(.system(size: 7.35))
                 }
 
-                Text("Action • 2 hr 9 min")
+                HStack(alignment: .bottom) {
+                    Text(String(format: "%.1f", movie.imdbRating))
+                        .font(.system(size: 20))
+                        .fontWeight(.medium)
+                    Text("out of 10")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+
+                Text("\(movie.genre.joined(separator: " • ")) • \(movie.runtime)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.dark4)
             }
-            .padding()
+            .padding([.leading, .bottom], 13)
         }
         .padding(.horizontal)
     }
 }
 
-
-struct MovieGrid: View {
-
-    let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
-
+//MARK: - Movie Row View of Posters
+private struct MovieRow: View {
+    let movies: [MovieModel]
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
-            MoviePoster()
-            MoviePoster()
-            MoviePoster()
-            MoviePoster()
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 18) {
+                //id: \.id identifier
+                ForEach(movies, id: \.name) { movie in
+                    MoviePoster(movie: movie)
+                }
+            }
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
     }
 }
-
-struct MoviePoster: View {
+//MARK: - Movie Poster View
+private struct MoviePoster: View {
+    let movie: MovieModel
     var body: some View {
-        Image("movie_placeholder")
-            .resizable()
-            .scaledToFill()
-            .frame(height: 240)
-            .clipped()
-            .cornerRadius(16)
+        VStack(alignment: .leading) {
+            //AsyncImage downloads image from the internet
+            AsyncImage(url: URL(string: movie.poster)) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(width: 208, height: 275)
+            .cornerRadius(8)
+            Text(movie.name)
+                .font(.caption)
+                .lineLimit(1)
+        }
     }
 }
