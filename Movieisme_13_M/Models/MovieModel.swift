@@ -5,17 +5,17 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //Third Layer of JSON
 //
-struct MovieModel: Codable{
-    var name: String
-    var poster: String
-    var story: String
-    var runtime: String
-    var genre: [String]
-    var rating: String
-    //snake_case
-    var IMDbRating: Double
-    var language: [String]
-    
+import Foundation
+struct MovieModel: Codable {
+    let name: String
+    let poster: String
+    let story: String
+    let runtime: String
+    let genre: [String]
+    let rating: String
+    let imdbRating: Double
+    let language: [String]
+
     enum CodingKeys: String, CodingKey {
         case name
         case poster
@@ -23,9 +23,8 @@ struct MovieModel: Codable{
         case runtime
         case genre
         case rating
-        case IMDbRating = "IMDb_rating"
+        case imdbRating = "IMDb_rating"
         case language
     }
-    
 }
 
