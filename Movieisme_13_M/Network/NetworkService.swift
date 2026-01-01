@@ -14,7 +14,13 @@
 //
 import Foundation
 func fetchMovies() async throws -> [MovieModel] {
-    let url = URL(string: "https://api.airtable.com/v0/appsfcB6YESLj4NCN/movies")!
+    
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = "api.airtable.com"
+    components.path = "/v0/appsfcB6YESLj4NCN/movies"
+    let url = components.url!
+    
     var request = URLRequest(url: url)
     request.httpMethod = "GET"
     request.setValue(
@@ -25,3 +31,6 @@ func fetchMovies() async throws -> [MovieModel] {
     let response = try JSONDecoder().decode(MovieResponseModel.self, from: data)
     return response.records.map { $0.fields }
 }
+
+
+
