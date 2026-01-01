@@ -5,7 +5,9 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
 import SwiftUI
-struct MovieView: View {
+struct MoviesView: View {
+    @StateObject private var movieVM = MovieViewModel()
+    @State private var searchText: String = ""
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -15,55 +17,65 @@ struct MovieView: View {
                         Text("Movies Center")
                             .font(.title2)
                             .fontWeight(.bold)
-
                         Spacer()
-
                         Circle()
                             .fill(Color.gray)
                             .frame(width: 41, height: 41)
                             .padding( .bottom, 8)
                     }
-
-                    SearchBarView()
+                    SearchBarView(text: $searchText)
                         .padding( .bottom, 16)
+
+                    
                 }
                 .padding(.horizontal)
-
-                //High Rated
-                SectionHeader(title: "High Rated", showMore: false)
-                HighRatedTab()
-
-                //Drama
-                SectionHeader(title: "Drama")
-                MovieRow()
-                    .padding(.bottom, 32)
                 
-                //Comedy
-                SectionHeader(title: "Comedy")
-                MovieRow()
+                if !searchText.isEmpty {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ForEach(movieVM.filteredMovies(searchText: searchText), id: \.name) { movie in
+                            MoviePoster(movie: movie)
+                        }
+                    }
+                    .padding(.horizontal)
+                } else {
+                    //High Rated
+                    SectionHeader(title: "High Rated", showMore: false)
+                    HighRatedTab(movies: movieVM.highRatedMovies)
+                    //movies: movieVM.highRatedMovies
+                    //Drama
+                    SectionHeader(title: "Drama")
+                    //Data from API
+                    MovieRow(movies: movieVM.dramaMovies)
+                        .padding(.bottom, 32)
+                    //Comedy
+                    SectionHeader(title: "Comedy")
+                    //Data from API
+                    MovieRow(movies: movieVM.comedyMovies)
+                }
             }
+        }
+        //A modifier, runs once when the view appears. Safe place to call async code.
+        .task {
+            await movieVM.loadMovies()
         }
         .background(Color.black.ignoresSafeArea())
         .foregroundColor(.light1)
     }
 }
-
 #Preview {
-    MovieView()
+    MoviesView()
 }
-
-
 //MARK: - Search Bar View
 private struct SearchBarView: View {
+    @Binding var text: String
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.dark3)
-
-            Text("Search for Movie name, actors ...")
-                .foregroundColor(.dark3)
+            TextField("Search for Movie name, actors ..." , text: $text)
+                .foregroundColor(.dark4)
                 .font(.subheadline)
-
             Spacer()
         }
         .padding()
@@ -76,15 +88,12 @@ private struct SearchBarView: View {
 private struct SectionHeader: View {
     let title: String
     var showMore: Bool = true
-
     var body: some View {
         HStack {
             Text(title)
                 .font(.title3)
                 .fontWeight(.semibold)
-
             Spacer()
-
             if showMore {
                 Button{}
                     label: {
@@ -100,13 +109,12 @@ private struct SectionHeader: View {
 }
 //MARK: - High Rated Tab View
 private struct HighRatedTab: View {
+    let movies: [MovieModel]
+    
     var body: some View {
         TabView {
-            Group{
-                HighRatedCard()
-                HighRatedCard()
-                HighRatedCard()
-                
+            ForEach(movies, id: \.name) { movie in
+                HighRatedCard(movie: movie)
             }
             .frame(width: 355, height: 424)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -117,14 +125,18 @@ private struct HighRatedTab: View {
 }
 //MARK: - High Rated Card View
 private struct HighRatedCard: View {
+    let movie: MovieModel
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image("topGun")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 355, height: 424)
-                .clipped()
-                .cornerRadius(8)
+            AsyncImage(url: URL(string: movie.poster)) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(width: 355, height: 424)
+            .clipped()
+            .cornerRadius(8)
 
             LinearGradient(
                 gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
@@ -133,32 +145,28 @@ private struct HighRatedCard: View {
             )
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Top Gun")
+                Text(movie.name)
                     .font(.title2)
                     .fontWeight(.bold)
 
                 HStack(spacing: 0) {
-                    Group{
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star.fill")
-                        Image(systemName: "star")
+                    ForEach(0..<5) { index in
+                        Image(systemName: index < Int(movie.imdbRating/2) ? "star.fill" : "star")
                     }
                     .foregroundColor(.brandMain)
                     .font(.system(size: 7.35))
-                    
                 }
-                HStack (alignment: .bottom) {
-                    Text("4.8")
+
+                HStack(alignment: .bottom) {
+                    Text(String(format: "%.1f", movie.imdbRating))
                         .font(.system(size: 20))
                         .fontWeight(.medium)
-                    Text("out of 5")
+                    Text("out of 10")
                         .font(.caption)
                         .fontWeight(.medium)
                 }
 
-                Text("Action • 2 hr 9 min")
+                Text("\(movie.genre.joined(separator: " • ")) • \(movie.runtime)")
                     .font(.caption)
                     .foregroundColor(.dark4)
             }
@@ -167,31 +175,40 @@ private struct HighRatedCard: View {
         .padding(.horizontal)
     }
 }
+
 //MARK: - Movie Row View of Posters
 private struct MovieRow: View {
+    let movies: [MovieModel]
     var body: some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 18) {
-                MoviePoster(moviePoster: "topGun")
-                MoviePoster(moviePoster: "topGun")
-                MoviePoster(moviePoster: "topGun")
-                MoviePoster(moviePoster: "topGun")
+                //id: \.id identifier
+                ForEach(movies, id: \.name) { movie in
+                    MoviePoster(movie: movie)
+                }
             }
             .padding(.horizontal)
-            
-            
         }
     }
 }
 //MARK: - Movie Poster View
 private struct MoviePoster: View {
-    let moviePoster: String
+    let movie: MovieModel
     var body: some View {
-        Image(moviePoster)
-            .resizable()
-            .scaledToFill()
-            .frame(width: 208,height: 275)
+        VStack(alignment: .leading) {
+            //AsyncImage downloads image from the internet
+            AsyncImage(url: URL(string: movie.poster)) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(width: 208, height: 275)
             .cornerRadius(8)
+            Text(movie.name)
+                .font(.caption)
+                .lineLimit(1)
+        }
     }
 }
-
