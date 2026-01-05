@@ -6,7 +6,21 @@
 //Third Layer of JSON
 //
 import Foundation
-struct MovieModel: Codable {
+struct MovieModel: Identifiable{
+    let id: String          // 👈 comes from MovieRecordModel
+    let name: String
+    let poster: String
+    let story: String
+    let runtime: String
+    let genre: [String]
+    let rating: String
+    let imdbRating: Double
+    let language: [String]
+}
+
+
+
+struct MovieFieldsDTO: Decodable {
     let name: String
     let poster: String
     let story: String
@@ -27,4 +41,3 @@ struct MovieModel: Codable {
         case language
     }
 }
-
