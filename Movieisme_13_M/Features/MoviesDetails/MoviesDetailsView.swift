@@ -10,43 +10,47 @@
 import SwiftUI
 
 struct MovieDetailsView: View {
+    let movie: MovieModel
+    
+    
     @State private var showAddReview = false
-    let movieId: Int
-    let movieName: String
     
 
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 24) {
-                HeaderImage()
+                HeaderImage(posterURL: movie.poster, title: movie.name)
                     .padding(.top, -60)
                 
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        InfoItem(title: "Duration", value: "2 hours 22 mins")
+                        InfoItem(title: "Duration", value: movie.runtime)
                         Spacer()
-                        InfoItem(title: "Language", value: "English")
+                        InfoItem(title: "Language", value: movie.language.joined(separator: ", "))
                     }
                     
                     HStack {
-                        InfoItem(title: "Genre", value: "Drama")
+                        InfoItem(title: "Genre", value: movie.genre.joined(separator: " • "))
                         Spacer()
-                        InfoItem(title: "Age", value: "+15")
+                        if movie.rating == "R" {
+                            InfoItem(title: "Age", value: "+18")
+                        } else {
+                            InfoItem(title: "Age", value: "+13")
+                        }
+                        
                     }
                 }
                 .padding(.horizontal)
                 
                 SectionView(title: "Story") {
-                    Text(
-                        "In 1947, Andy Dufresne (Tim Robbins), a banker from Maine, is convicted of murdering his wife and her lover, a golf pro. Since the state of Maine has no death penalty, he is given two consecutive life sentences and sent to the notoriously harsh Shawshank Prison."
-                    )
+                    Text(movie.story)
                     .font(.system(size: 15))
                     .fontWeight(.medium)
                     .foregroundColor(.dark4)
                 }
                 
                 SectionView(title: "IMDb Rating") {
-                    Text("9.3 / 10")
+                    Text(String(format: "%.1f", movie.imdbRating))
                         .font(.system(size: 15))
                         .fontWeight(.medium)
                         .foregroundColor(.dark4)
@@ -78,7 +82,7 @@ struct MovieDetailsView: View {
                     .background(Color.dark4)
 
                 SectionView(title: "Rating & Reviews") {
-                    ReviewsSection(movieName: movieName)
+                    ReviewsSection(movieName: movie.name)
                 }
                 
             }
@@ -86,7 +90,7 @@ struct MovieDetailsView: View {
                 showAddReview = true
             }
             .sheet(isPresented: $showAddReview) {
-                AddReviewView(movieId: movieId)
+//                AddReviewView(movieId: movie.id)
             }
             .padding([.top,.bottom], 32)
 
@@ -98,16 +102,37 @@ struct MovieDetailsView: View {
 }
 
 #Preview {
-    MovieDetailsView(movieId: 1, movieName: "Shawshank")
+    MovieDetailsView(
+        movie: MovieModel(
+            id: "preview-movie-id",
+            name: "The Shawshank Redemption",
+            poster: "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmRhMC00ZDIwLTgxNWEtN2IyODc5N2U3YzY3XkEyXkFqcGc@._V1_.jpg",
+            story: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+            runtime: "2h 22m",
+            genre: ["Drama"],
+            rating: "R",
+            imdbRating: 9.3,
+            language: ["English"]
+        )
+    )
+    .preferredColorScheme(.dark)
 }
 
 // MARK: - Header Image
 private struct HeaderImage: View{
+    let posterURL: String
+    let title: String
+    
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image("topGun")
+            AsyncImage(url: URL(string: posterURL)) { image in
+                image
                 .resizable()
                 .scaledToFill()
+            } placeholder: {
+                Color.dark2
+            }
+            .frame(height: 448)
 
             LinearGradient(
                 gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
@@ -115,7 +140,7 @@ private struct HeaderImage: View{
                 endPoint: .bottom
             )
 
-            Text("Shawshank")
+            Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding()

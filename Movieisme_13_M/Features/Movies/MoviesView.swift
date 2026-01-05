@@ -7,13 +7,13 @@
 import SwiftUI
 
 struct MoviesView: View {
-//    let user: SignInUserModel
+    //    let user: SignInUserModel
     @EnvironmentObject var signInVM: SignInViewModel
- 
-
+    
+    
     @StateObject private var movieVM = MovieViewModel()
     @State private var searchText: String = ""
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -39,7 +39,7 @@ struct MoviesView: View {
                             .padding( .bottom, 16)
                     }
                     .padding(.horizontal)
-
+                    
                     if !searchText.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
                             ForEach(movieVM.filteredMovies(searchText: searchText)) { movie in
@@ -69,24 +69,27 @@ struct MoviesView: View {
             }
             .background(Color.black.ignoresSafeArea())
             .foregroundColor(.light1)
+            // ✅ Here: declare navigationDestination
+            .navigationDestination(for: MovieModel.self) { movie in
+                MovieDetailsView(movie: movie)
+            }
         }
     }
 }
-
-
-#Preview {
-    let signInVM = SignInViewModel()
-    signInVM.signedInUser = SignInUserModel(
-        id: "preview",
-        name: "Preview User",
-        email: "preview@example.com",
-        profileImage: "https://i.pinimg.com/736x/00/47/00/004700cb81873e839ceaadf9f3c1fb28.jpg"
-    )
-
-    return MoviesView()
-        .environmentObject(signInVM)
-        .preferredColorScheme(.dark)
-}
+//
+//#Preview {
+//    let signInVM = SignInViewModel()
+//    signInVM.signedInUser = SignInUserModel(
+//        id: "preview",
+//        name: "Preview User",
+//        email: "preview@example.com",
+//        profileImage: "https://i.pinimg.com/736x/00/47/00/004700cb81873e839ceaadf9f3c1fb28.jpg"
+//    )
+//
+//    return MoviesView()
+//        .environmentObject(signInVM)
+//        .preferredColorScheme(.dark)
+//}
 
 
 //MARK: - Search Bar View
@@ -138,7 +141,10 @@ private struct HighRatedTab: View {
     var body: some View {
         TabView {
             ForEach(movies) { movie in
-                HighRatedCard(movie: movie)
+//                HighRatedCard(movie: movie)
+                NavigationLink(value: movie) {
+                    HighRatedCard(movie: movie)
+                }
             }
             .frame(width: 355, height: 424)
             .frame(maxHeight: .infinity, alignment: .top)
@@ -208,7 +214,10 @@ private struct MovieRow: View {
             LazyHStack(spacing: 18) {
                 //id: \.id identifier
                 ForEach(movies) { movie in
-                    MoviePoster(movie: movie)
+//                    MoviePoster(movie: movie)
+                    NavigationLink(value: movie) {
+                        MoviePoster(movie: movie)
+                    }
                 }
             }
             .padding(.horizontal)

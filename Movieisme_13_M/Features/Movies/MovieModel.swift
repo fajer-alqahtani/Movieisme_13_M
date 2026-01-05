@@ -6,7 +6,7 @@
 //Third Layer of JSON
 //
 import Foundation
-struct MovieModel: Identifiable{
+struct MovieModel: Identifiable, Hashable{
     let id: String          // 👈 comes from MovieRecordModel
     let name: String
     let poster: String
@@ -17,8 +17,6 @@ struct MovieModel: Identifiable{
     let imdbRating: Double
     let language: [String]
 }
-
-
 
 struct MovieFieldsDTO: Decodable {
     let name: String
