@@ -10,24 +10,26 @@ enum Endpoint {
 
     // MARK: - Movies
     case movies
-    case movieActors(movieId: Int)
-    case movieDirectors(movieId: Int)
+    case movieActors(movieId: String)
+    case movieDirectors(movieId: String)
 
     // MARK: - People
     case actors
     case directors
 
     // MARK: - Reviews
-    case reviews(movieId: Int)
+    case reviews(movieId: String)
     case createReview
     case deleteReview(id: Int)
 
     // MARK: - User
-    case user
-    case updateUser(id: Int)
+    case users
+    case usersFiltered(formula: String)
+    case updateUser(id: String)
 
     // MARK: - Saved Movies
     case savedMovies
+    case savedMoviesFiltered(formula: String)
 }
 
 
@@ -45,28 +47,28 @@ extension Endpoint {
         case .directors:
             return APIConfig.basePath + "/directors"
 
-        case .movieActors(let movieId):
-            return APIConfig.basePath + "/movie_actors/\(movieId)"
+        case .movieActors:
+            return APIConfig.basePath + "/movie_actors"
 
-        case .movieDirectors(let movieId):
-            return APIConfig.basePath + "/movie_directors/\(movieId)"
+        case .movieDirectors:
+            return APIConfig.basePath + "/movie_directors"
 
-        case .reviews(let movieId):
-            return APIConfig.basePath + "/reviews/\(movieId)"
+        case .reviews:
+            return APIConfig.basePath + "/reviews"
 
         case .createReview:
-            return APIConfig.basePath + "/review"
+            return APIConfig.basePath + "/reviews"
 
         case .deleteReview(let id):
             return APIConfig.basePath + "/review/\(id)"
 
-        case .user:
-            return APIConfig.basePath + "/user"
+        case .users, .usersFiltered:
+            return APIConfig.basePath + "/users"
 
         case .updateUser(let id):
-            return APIConfig.basePath + "/user/\(id)"
+            return APIConfig.basePath + "/users/\(id)"
 
-        case .savedMovies:
+        case .savedMovies, .savedMoviesFiltered:
             return APIConfig.basePath + "/saved_movies"
         }
     }
@@ -84,18 +86,37 @@ extension Endpoint {
              .movieActors,
              .movieDirectors,
              .reviews,
-             .user,
-             .savedMovies:
+             .users,
+             .usersFiltered,
+             .savedMovies,
+             .savedMoviesFiltered:
             return .get
 
         case .createReview:
             return .post
 
         case .updateUser:
-            return .put
+            return .patch
 
         case .deleteReview:
             return .delete
         }
     }
 }
+
+// MARK: - Query Items
+extension Endpoint {
+    var queryItems: [URLQueryItem]? {
+        switch self {
+        case .usersFiltered(let formula),
+             .savedMoviesFiltered(let formula):
+            return [URLQueryItem(name: "filterByFormula", value: formula)]
+        default:
+            return nil
+        }
+    }
+}
+
+
+
+

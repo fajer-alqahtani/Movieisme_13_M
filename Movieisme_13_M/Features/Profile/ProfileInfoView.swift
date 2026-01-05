@@ -1,102 +1,96 @@
-import SwiftUI
-import PhotosUI
 
+import SwiftUI
 
 struct ProfileInfoView: View {
+
+    @EnvironmentObject var signInVM: SignInViewModel
     @StateObject private var vm = ProfileInfoViewModel()
+
     @Environment(\.dismiss) private var dismiss
+    @State private var showSignOutAlert = false
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top Bar
+
+            // Header
             HStack {
                 Button {
                     dismiss()
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "arrow.left")
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: 22, weight: .semibold))
                         Text("Back")
-                            .font(.system(size: 18))
-                            .fontWeight(.medium)
                     }
-                    .foregroundColor(.yellow)
                 }
-
-                Spacer()
-
-                Text("Profile info")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+                .foregroundColor(.yellow)
 
                 Spacer()
 
                 Button {
                     if vm.isEditing {
-                        vm.saveChanges()
+                        vm.saveChanges(signInVM: signInVM)
                     } else {
                         vm.enterEditMode()
                     }
                 } label: {
                     Text(vm.isEditing ? "Save" : "Edit")
-                        .font(.system(size: 18))
-                        .fontWeight(.medium)
-                        .foregroundColor(.yellow)
+                        .font(.system(size: 17, weight: .semibold))
                 }
+                .foregroundColor(.yellow)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
             .padding(.bottom, 8)
 
             ScrollView {
-                VStack(spacing: 24) {
-                    VStack {
-                        ZStack(alignment: .bottomTrailing) {
-                            vm.currentSwiftUIImage()
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 76, height: 76)
-                                .clipShape(Circle())
+                VStack(spacing: 18) {
 
-                            if vm.isEditing {
-                                PhotosPicker(selection: $vm.selectedPhotoItem, matching: .images) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.black.opacity(0.7))
-                                            .frame(width: 28, height: 28)
-                                        Image(systemName: "camera.fill")
-                                            .foregroundColor(.yellow)
-                                            .font(.system(size: 14))
-                                    }
-                                }
-                                .onChange(of: vm.selectedPhotoItem) { _, _ in
-                                    Task { await vm.loadSelectedImage() }
-                                }
-                                .offset(x: 4, y: 4)
-                            }
-                        }
+                    // Avatar (URL)
+                    VStack(spacing: 10) {
+                        UserAvatarView(
+                            imageURLString: signInVM.signedInUser?.profileImage ?? "",
+                            size: 76
+                        )
+
+                        Text("Profile image is saved as a URL")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
                     }
                     .padding(.top, 12)
 
+                    // Name fields
                     VStack(spacing: 12) {
                         if vm.isEditing {
-                            editableCell(title: "First name", text: $vm.firstName)
-                            editableCell(title: "Last name", text: $vm.lastName)
+                            editableCell(title: "First Name", text: $vm.firstName)
+                            editableCell(title: "Last Name", text: $vm.lastName)
                           
                         } else {
-                            displayCell(title: "First name", value: vm.firstName)
-                            displayCell(title: "Last name", value: vm.lastName)
-                            // displayCell(title: "Email", value: vm.email)
+                            displayCell(title: "First Name", value: vm.firstName)
+                            displayCell(title: "Last Name", value: vm.lastName)
+                            
                         }
                     }
                     .padding(.horizontal, 16)
 
-                    Spacer(minLength: 280)
+                    // Email (read-only)
+                    displayCell(title: "Email", value: vm.email)
+                        .padding(.horizontal, 16)
 
+                    if let err = vm.errorMessage, !err.isEmpty {
+                        Text(err)
+                            .foregroundColor(.red)
+                            .font(.system(size: 14))
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    Spacer(minLength: 240)
+
+                    // Sign Out when not editing
                     if !vm.isEditing {
                         Button {
-                            vm.signOut()
+                            showSignOutAlert = true
                         } label: {
                             Text("Sign Out")
                                 .font(.system(size: 17))
@@ -109,23 +103,38 @@ struct ProfileInfoView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.bottom, 24)
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        .alert("تسجيل الخروج", isPresented: $showSignOutAlert) {
+                            Button("إلغاء", role: .cancel) { }
+                            Button("تسجيل الخروج", role: .destructive) {
+                                signInVM.signOut()
+                                dismiss()
+                            }
+                        } message: {
+                            Text("هل أنتِ متأكدة من تسجيل الخروج؟")
+                        }
                     }
                 }
             }
         }
         .background(Color.black.ignoresSafeArea())
+        .foregroundColor(.white)
+        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            if let user = signInVM.signedInUser {
+                vm.fillFromUser(user)
+            }
+        }
     }
 
- 
     @ViewBuilder
     private func displayCell(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .foregroundColor(.gray)
                 .font(.caption)
+
             HStack {
-                Text(value)
+                Text(value.isEmpty ? "-" : value)
                     .foregroundColor(.white)
                     .font(.system(size: 17))
                     .fontWeight(.medium)
@@ -134,21 +143,24 @@ struct ProfileInfoView: View {
             .padding(.vertical, 10)
             .padding(.horizontal, 12)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white.opacity(0.08))
             )
         }
     }
 
     @ViewBuilder
-    private func editableCell(title: String,
-                              text: Binding<String>,
-                              keyboard: UIKeyboardType = .default,
-                              autocap: TextInputAutocapitalization = .words) -> some View {
+    private func editableCell(
+        title: String,
+        text: Binding<String>,
+        keyboard: UIKeyboardType = .default,
+        autocap: TextInputAutocapitalization = .words
+    ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .foregroundColor(.gray)
                 .font(.caption)
+
             TextField("", text: text)
                 .textInputAutocapitalization(autocap)
                 .keyboardType(keyboard)
@@ -158,14 +170,9 @@ struct ProfileInfoView: View {
                 .padding(.vertical, 10)
                 .padding(.horizontal, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(Color.white.opacity(0.12))
                 )
         }
     }
-}
-
-#Preview {
-    ProfileInfoView()
-        .preferredColorScheme(.dark)
 }
