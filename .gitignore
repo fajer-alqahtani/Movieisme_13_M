@@ -1,0 +1,7 @@
+# Xcode user-specific files
+xcuserdata/
+*.xcuserdata/
+*.xcuserstate
+
+# Secrets (do not commit)
+Movieisme_13_M/Token.swift
