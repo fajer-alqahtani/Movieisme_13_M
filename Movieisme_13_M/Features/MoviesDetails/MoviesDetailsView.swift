@@ -5,20 +5,22 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
 
+
+// MovieRecordID
 import SwiftUI
 
 struct MovieDetailsView: View {
     @State private var showAddReview = false
     let movieId: Int
+    let movieName: String
+    
 
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 24) {
-                //Header Image
                 HeaderImage()
                     .padding(.top, -60)
                 
-                //Movie Meta Info
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         InfoItem(title: "Duration", value: "2 hours 22 mins")
@@ -34,7 +36,6 @@ struct MovieDetailsView: View {
                 }
                 .padding(.horizontal)
                 
-                //Story
                 SectionView(title: "Story") {
                     Text(
                         "In 1947, Andy Dufresne (Tim Robbins), a banker from Maine, is convicted of murdering his wife and her lover, a golf pro. Since the state of Maine has no death penalty, he is given two consecutive life sentences and sent to the notoriously harsh Shawshank Prison."
@@ -44,7 +45,6 @@ struct MovieDetailsView: View {
                     .foregroundColor(.dark4)
                 }
                 
-                //IMDb Rating
                 SectionView(title: "IMDb Rating") {
                     Text("9.3 / 10")
                         .font(.system(size: 15))
@@ -52,7 +52,6 @@ struct MovieDetailsView: View {
                         .foregroundColor(.dark4)
                 }
                 
-                //Director
                 SectionView(title: "Director") {
                     VStack(spacing: 16) {
                         Circle()
@@ -66,7 +65,6 @@ struct MovieDetailsView: View {
                     }
                 }
                 
-                //Stars
                 SectionView(title: "Stars") {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
@@ -79,13 +77,11 @@ struct MovieDetailsView: View {
                 Divider()
                     .background(Color.dark4)
 
-                //Rating & Reviews (Updated: mock now, ready for API later)
                 SectionView(title: "Rating & Reviews") {
-                    ReviewsSection()
+                    ReviewsSection(movieName: movieName)
                 }
                 
             }
-            //WriteAReviewButton
             WriteAReviewButton {
                 showAddReview = true
             }
@@ -93,7 +89,7 @@ struct MovieDetailsView: View {
                 AddReviewView(movieId: movieId)
             }
             .padding([.top,.bottom], 32)
-            
+
         }
         .coordinateSpace(name: "scroll")
         .background(Color.black.ignoresSafeArea())
@@ -102,7 +98,7 @@ struct MovieDetailsView: View {
 }
 
 #Preview {
-    MovieDetailsView(movieId: 1)
+    MovieDetailsView(movieId: 1, movieName: "Shawshank")
 }
 
 // MARK: - Header Image
@@ -188,7 +184,7 @@ struct StarView: View {
 }
 
 // MARK: - Review Card
-struct ReviewCard: View {
+struct ReviewCards: View {
     let author: String
     let review: String
     let reviewDay: String
@@ -201,7 +197,7 @@ struct ReviewCard: View {
                     .fill(Color.gray.opacity(0.3))
                     .frame(width: 38, height: 38)
 
-                VStack (alignment: .leading){
+                VStack(alignment: .leading) {
                     Text(author)
                         .font(.system(size: 13))
                         .fontWeight(.semibold)
@@ -214,26 +210,26 @@ struct ReviewCard: View {
                         }
                     }
                 }
+                Spacer()
             }
 
             Text(review)
                 .font(.system(size: 13))
-                .fontWeight(.regular)
                 .foregroundColor(.light1)
 
-            HStack{
+            HStack {
                 Spacer()
                 Text(reviewDay)
                     .font(.system(size: 13))
-                    .fontWeight(.regular)
                     .foregroundColor(.dark4)
             }
         }
         .padding()
         .background(Color.dark1)
-        .cornerRadius(8)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
+
 
 //MARK: - Write a Review button
 struct WriteAReviewButton: View {
@@ -257,65 +253,3 @@ struct WriteAReviewButton: View {
         )
     }
 }
-
-// MARK: - Reviews Section (Mock now, ready for API later)
-private struct ReviewsSection: View {
-
-    // Dummy reviews for now (replace later with API data)
-    private let reviews: [MockReview] = [
-        MockReview(
-            author: "Afnan Abdullah",
-            review: "This is an engagingly simple, good-hearted film, with just enough darkness around the edges to give contrast and relief to its glowingly benign view of human nature.",
-            day: "Tuesday",
-            rating: 4
-        ),
-        MockReview(
-            author: "Sarah Abdullah",
-            review: "Great movie. The acting is strong and the story stays with you.",
-            day: "Yesterday",
-            rating: 5
-        ),
-        MockReview(
-            author: "Dana Mohammed",
-            review: "Loved the soundtrack and the cinematography. Very immersive!",
-            day: "Monday",
-            rating: 4
-        )
-    ]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-
-            Text("4.8")
-                .font(.largeTitle)
-                .foregroundColor(.dark4)
-                .fontWeight(.semibold)
-
-            Text("out of 5")
-                .font(.system(size: 15))
-                .foregroundColor(.dark4)
-                .fontWeight(.semibold)
-
-            // Swipe reviews horizontally
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(reviews) { r in
-                        ReviewCard(
-                            author: r.author,
-                            review: r.review,
-                            reviewDay: r.day,
-                            rating: r.rating
-                        )
-                        .frame(width: 320)
-                    }
-                }
-                .padding(.top, 16)
-                .padding(.horizontal, 2)
-            }
-        }
-    }
-}
-
-
-
-
