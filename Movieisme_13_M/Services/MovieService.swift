@@ -12,7 +12,28 @@ struct MovieService {
             endpoint: .movies,
             responseType: MovieResponseModel.self
         )
-        return response.records.map { $0.fields }
+        response.records.forEach { record in
+                    print("🆔 Backend ID:", record.id)
+                }
+        let movies = response.records.map { record in
+            MovieModel(
+                id: record.id,
+                name: record.fields.name,
+                poster: record.fields.poster,
+                story: record.fields.story,
+                runtime: record.fields.runtime,
+                genre: record.fields.genre,
+                rating: record.fields.rating,
+                imdbRating: record.fields.imdbRating,
+                language: record.fields.language
+            )
+        }
+
+        movies.forEach { movie in
+            print("🎬 MovieModel ID:", movie.id)
+        }
+
+        return movies
     }
 }
 

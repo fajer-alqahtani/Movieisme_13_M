@@ -42,7 +42,7 @@ struct MoviesView: View {
 
                     if !searchText.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
-                            ForEach(movieVM.filteredMovies(searchText: searchText), id: \.name) { movie in
+                            ForEach(movieVM.filteredMovies(searchText: searchText)) { movie in
                                 MoviePoster(movie: movie)
                             }
                         }
@@ -74,21 +74,20 @@ struct MoviesView: View {
 }
 
 
-//#Preview {
-//    // تجهيز SignInViewModel للـ Preview حتى لا ينهار عند فتح ProfileView
-//    let signInVM = SignInViewModel()
-//    signInVM.signedInUser = SignInUserModel(
-//        id: "preview",
-//        name: "Preview User",
-//        email: "preview@example.com",
-//        profileImage: "https://i.pinimg.com/736x/00/47/00/004700cb81873e839ceaadf9f3c1fb28.jpg"
-//    )
-//    return MoviesView(
-//        user: signInVM.signedInUser!
-//    )
-//    .environmentObject(signInVM)
-//    .preferredColorScheme(.dark)
-//}
+#Preview {
+    let signInVM = SignInViewModel()
+    signInVM.signedInUser = SignInUserModel(
+        id: "preview",
+        name: "Preview User",
+        email: "preview@example.com",
+        profileImage: "https://i.pinimg.com/736x/00/47/00/004700cb81873e839ceaadf9f3c1fb28.jpg"
+    )
+
+    return MoviesView()
+        .environmentObject(signInVM)
+        .preferredColorScheme(.dark)
+}
+
 
 //MARK: - Search Bar View
 private struct SearchBarView: View {
@@ -138,7 +137,7 @@ private struct HighRatedTab: View {
     
     var body: some View {
         TabView {
-            ForEach(movies, id: \.name) { movie in
+            ForEach(movies) { movie in
                 HighRatedCard(movie: movie)
             }
             .frame(width: 355, height: 424)
@@ -208,7 +207,7 @@ private struct MovieRow: View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 18) {
                 //id: \.id identifier
-                ForEach(movies, id: \.name) { movie in
+                ForEach(movies) { movie in
                     MoviePoster(movie: movie)
                 }
             }

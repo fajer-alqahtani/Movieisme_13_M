@@ -9,5 +9,5 @@ import Foundation
 import Combine
 struct MovieRecordModel: Decodable, Identifiable {
     let id: String
-    let fields: MovieModel
+    let fields: MovieFieldsDTO
 }
