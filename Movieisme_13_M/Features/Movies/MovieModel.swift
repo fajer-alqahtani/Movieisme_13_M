@@ -17,7 +17,7 @@ struct MovieModel: Identifiable, Hashable{
     let imdbRating: Double
     let language: [String]
 }
-
+//Data Transfer Objects
 struct MovieFieldsDTO: Decodable {
     let name: String
     let poster: String
@@ -38,4 +38,17 @@ struct MovieFieldsDTO: Decodable {
         case imdbRating = "IMDb_rating"
         case language
     }
+}
+
+//Second Layer of JSON
+import Foundation
+import Combine
+struct MovieRecordModel: Decodable, Identifiable {
+    let id: String
+    let fields: MovieFieldsDTO
+}
+
+//First Layer of JSON
+struct MovieResponseModel: Decodable {
+    let records: [MovieRecordModel]
 }

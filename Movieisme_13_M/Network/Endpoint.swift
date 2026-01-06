@@ -7,29 +7,31 @@
 import Foundation
 
 enum Endpoint {
-
+    
     // MARK: - Movies
     case movies
     case movieActors(movieId: String)
     case movieDirectors(movieId: String)
-
+    
     // MARK: - People
     case actors
     case directors
-
+    
     // MARK: - Reviews
     case reviews(movieId: String)
     case createReview
     case deleteReview(id: Int)
-
+    
     // MARK: - User
     case users
     case usersFiltered(formula: String)
     case updateUser(id: String)
-
+    
     // MARK: - Saved Movies
     case savedMovies
     case savedMoviesFiltered(formula: String)
+    
+    
 }
 
 
@@ -111,6 +113,14 @@ extension Endpoint {
         case .usersFiltered(let formula),
              .savedMoviesFiltered(let formula):
             return [URLQueryItem(name: "filterByFormula", value: formula)]
+            
+        case .movieActors(let movieId):
+            let formula = "movie_id='\(movieId)'" // Airtable formula
+            return [URLQueryItem(
+                name: "filterByFormula",
+                value: formula.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            )]
+            
         default:
             return nil
         }
