@@ -13,7 +13,9 @@ final class MovieDetailsViewModel: ObservableObject {
     @Published var directors: [DirectorModel] = []
     @Published var actors: [ActorModel] = []
     @Published var isLoading = false
+    @Published var error: AppError?
     @Published var errorMessage: String?
+
     
     // Movie Detail sService
     private let service = MovieDetailsService()
@@ -24,9 +26,13 @@ final class MovieDetailsViewModel: ObservableObject {
         
         do {
             actors = try await service.fetchActors(for: movie.id)
+            error = nil
+            errorMessage = nil
             print("🎭 Filtered actors for \(movie.name):", actors.map { $0.name })
         } catch {
-            errorMessage = error.localizedDescription
+            let appError = AppError.map(error)
+            self.error = appError
+            self.errorMessage = appError.localizedDescription
             print("❌ Failed fetching actors:", error)
         }
     }
@@ -60,8 +66,14 @@ final class MovieDetailsViewModel: ObservableObject {
             let filteredDirectors = allDirectors.filter { movieDirectorIds.contains($0.id) }
             directors = filteredDirectors
             
+            error = nil
+            errorMessage = nil
+            
         } catch {
-            errorMessage = error.localizedDescription
+            let appError = AppError.map(error)
+            self.error = appError
+            self.errorMessage = appError.localizedDescription
+            print("❌ Failed fetching directors:", error)
         }
         isLoading = false
     }
