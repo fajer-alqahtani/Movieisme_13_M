@@ -5,111 +5,148 @@
 //  Created by Yousra Abdelrahman on 04/07/1447 AH.
 //
 
-
-// MovieRecordID
 import SwiftUI
 
 struct MovieDetailsView: View {
     let movie: MovieModel
-    
-    
+    @Environment(\.presentationMode) var presentationMode
     @State private var showAddReview = false
-    
     @StateObject private var movieDetailsVM = MovieDetailsViewModel()
-
-    
-
     var body: some View {
-        ScrollView{
-            LazyVStack(alignment: .leading, spacing: 24) {
-                HeaderImage(posterURL: movie.poster, title: movie.name)
-                    .padding(.top, -60)
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack {
-                        InfoItem(title: "Duration", value: movie.runtime)
-                        Spacer()
-                        InfoItem(title: "Language", value: movie.language.joined(separator: ", "))
-                    }
+        NavigationStack{
+            ScrollView{
+                LazyVStack(alignment: .leading, spacing: 24) {
+                    HeaderImage(posterURL: movie.poster, title: movie.name)
+                        .padding(.top, -60)
                     
-                    HStack {
-                        InfoItem(title: "Genre", value: movie.genre.joined(separator: " • "))
-                        Spacer()
-                        if movie.rating == "R" {
-                            InfoItem(title: "Age", value: "+18")
-                        } else {
-                            InfoItem(title: "Age", value: "+13")
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            InfoItem(title: "Duration", value: movie.runtime)
+                            Spacer()
+                            InfoItem(title: "Language", value: movie.language.joined(separator: ", "))
                         }
                         
+                        HStack {
+                            InfoItem(title: "Genre", value: movie.genre.joined(separator: " • "))
+                            Spacer()
+                            if movie.rating == "R" {
+                                InfoItem(title: "Age", value: "+18")
+                            } else {
+                                InfoItem(title: "Age", value: "+13")
+                            }
+                            
+                        }
                     }
-                }
-                .padding(.horizontal)
-                
-                SectionView(title: "Story") {
-                    Text(movie.story)
-                    .font(.system(size: 15))
-                    .fontWeight(.medium)
-                    .foregroundColor(.dark4)
-                }
-                
-                SectionView(title: "IMDb Rating") {
-                    Text(String(format: "%.1f", movie.imdbRating))
+                    .padding(.horizontal)
+                    
+                    SectionView(title: "Story") {
+                        Text(movie.story)
                         .font(.system(size: 15))
                         .fontWeight(.medium)
                         .foregroundColor(.dark4)
-                }
-                
-                SectionView(title: "Director") {
-                    VStack(spacing: 16) {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 76, height: 76)
-                        
-                        Text("Frank Darabont")
+                    }
+                    
+                    SectionView(title: "IMDb Rating") {
+                        Text(String(format: "%.1f", movie.imdbRating))
                             .font(.system(size: 15))
                             .fontWeight(.medium)
                             .foregroundColor(.dark4)
                     }
-                }
-                
-                SectionView(title: "Stars") {
-                    if movieDetailsVM.isLoading {
-                        ProgressView()
-                    } else {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(movieDetailsVM.actors) { actor in
-                                    StarView(
-                                        name: actor.name,
-                                        imageURL: actor.image
-                                    )
+                    
+                    SectionView(title: "Director") {
+                        if movieDetailsVM.isLoading {
+                                ProgressView()
+                            } else {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 16) {
+                                        ForEach(movieDetailsVM.directors) { director in
+                                            StarView(
+                                                name: director.name,
+                                                imageURL: director.image
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                    
+                    SectionView(title: "Stars") {
+                        if movieDetailsVM.isLoading {
+                            ProgressView()
+                        //Safeguard: prevents SwiftUI from crashing while the async data is fetched.
+                        } else if movieDetailsVM.actors.isEmpty {
+                            Text("No actors available")
+                                .foregroundColor(.gray)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(movieDetailsVM.actors) { actor in
+                                        StarView(
+                                            //Safeguard: ensure actors is never nil. Delay issues.
+                                            name: actor.name.isEmpty ? "Unknown" : actor.name,
+                                            imageURL: actor.image
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                Divider()
-                    .background(Color.dark4)
+                    Divider()
+                        .background(Color.dark4)
 
-                SectionView(title: "Rating & Reviews") {
-                    ReviewsSection(movieName: movie.name)
+                    SectionView(title: "Rating & Reviews") {
+                        ReviewsSection(movieName: movie.name)
+                    }
+                    
                 }
-                
-            }
-            WriteAReviewButton {
-                showAddReview = true
-            }
-            .sheet(isPresented: $showAddReview) {
-//                AddReviewView(movieId: movie.id)
-            }
-            .padding([.top,.bottom], 32)
+                WriteAReviewButton {
+                    showAddReview = true
+                }
+                .sheet(isPresented: $showAddReview) {
+        //                AddReviewView(movieId: movie.id)
+                }
+                .padding([.top,.bottom], 32)
 
+            }
         }
         .coordinateSpace(name: "scroll")
         .background(Color.black.ignoresSafeArea())
         .foregroundColor(.light1)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            // Leading: Custom Back Button
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "arrow.backward")
+                        .foregroundColor(.brandMain)
+                }
+            }
+            // Trailing: Share Button
+            ToolbarItem(placement: .navigationBarTrailing) {
+                HStack(spacing: 16) {
+                    Button(action: {
+                        // TODO: share movie placeholder
+                        print("Share tapped")
+                    }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(.brandMain)
+                    }
+                    
+                    Button(action: {
+                        // TODO: save movie placeholder
+                        print("Save tapped")
+                    }) {
+                        Image(systemName: "bookmark")
+                            .foregroundColor(.brandMain)
+                    }
+                }
+            }
+        }
         .task {
             await movieDetailsVM.fetchActors(for: movie)
+            await movieDetailsVM.fetchDirectors(for: movie)
         }
     }
 }
@@ -135,7 +172,6 @@ struct MovieDetailsView: View {
 private struct HeaderImage: View{
     let posterURL: String
     let title: String
-    
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             AsyncImage(url: URL(string: posterURL)) { image in
@@ -216,8 +252,8 @@ struct StarView: View {
             }
             .frame(width: 76, height: 76)
             .clipShape(Circle())
-
-            Text(name)
+            // Safeguard
+            Text(name.isEmpty ? "Unknown" : name)
                 .font(.system(size: 15))
                 .fontWeight(.medium)
                 .foregroundColor(.dark4)
@@ -273,7 +309,6 @@ struct ReviewCards: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
-
 
 //MARK: - Write a Review button
 struct WriteAReviewButton: View {

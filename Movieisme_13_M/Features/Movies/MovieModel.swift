@@ -7,7 +7,8 @@
 //
 import Foundation
 struct MovieModel: Identifiable, Hashable{
-    let id: String          // 👈 comes from MovieRecordModel
+    // id comes from MovieRecordModel
+    let id: String
     let name: String
     let poster: String
     let story: String
@@ -16,6 +17,28 @@ struct MovieModel: Identifiable, Hashable{
     let rating: String
     let imdbRating: Double
     let language: [String]
+    //Safeguard
+    init(
+        id: String = "",
+        name: String = "Unknown",
+        poster: String = "",
+        story: String = "",
+        runtime: String = "N/A",
+        genre: [String] = [],
+        rating: String = "N/A",
+        imdbRating: Double = 0.0,
+        language: [String] = []
+    ) {
+        self.id = id
+        self.name = name
+        self.poster = poster
+        self.story = story
+        self.runtime = runtime
+        self.genre = genre
+        self.rating = rating
+        self.imdbRating = imdbRating
+        self.language = language
+    }
 }
 //Data Transfer Objects
 struct MovieFieldsDTO: Decodable {

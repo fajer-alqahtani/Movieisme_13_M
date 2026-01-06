@@ -7,10 +7,7 @@
 import SwiftUI
 
 struct MoviesView: View {
-    //    let user: SignInUserModel
     @EnvironmentObject var signInVM: SignInViewModel
-    
-    
     @StateObject private var movieVM = MovieViewModel()
     @State private var searchText: String = ""
     
@@ -69,7 +66,6 @@ struct MoviesView: View {
             }
             .background(Color.black.ignoresSafeArea())
             .foregroundColor(.light1)
-            // ✅ Here: declare navigationDestination
             .navigationDestination(for: MovieModel.self) { movie in
                 MovieDetailsView(movie: movie)
             }
@@ -95,7 +91,6 @@ struct MoviesView: View {
 //MARK: - Search Bar View
 private struct SearchBarView: View {
     @Binding var text: String
-    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
@@ -137,12 +132,10 @@ private struct SectionHeader: View {
 //MARK: - High Rated Tab View
 private struct HighRatedTab: View {
     let movies: [MovieModel]
-    
     var body: some View {
         TabView {
             ForEach(movies) { movie in
-//                HighRatedCard(movie: movie)
-                NavigationLink(value: movie) {
+                NavigationLink(destination: MovieDetailsView(movie: movie)) {
                     HighRatedCard(movie: movie)
                 }
             }
@@ -156,7 +149,6 @@ private struct HighRatedTab: View {
 //MARK: - High Rated Card View
 private struct HighRatedCard: View {
     let movie: MovieModel
-
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             AsyncImage(url: URL(string: movie.poster)) { image in
@@ -205,17 +197,14 @@ private struct HighRatedCard: View {
         .padding(.horizontal)
     }
 }
-
 //MARK: - Movie Row View of Posters
 private struct MovieRow: View {
     let movies: [MovieModel]
     var body: some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: 18) {
-                //id: \.id identifier
                 ForEach(movies) { movie in
-//                    MoviePoster(movie: movie)
-                    NavigationLink(value: movie) {
+                    NavigationLink(destination: MovieDetailsView(movie: movie)) {
                         MoviePoster(movie: movie)
                     }
                 }

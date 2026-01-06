@@ -120,7 +120,13 @@ extension Endpoint {
                 name: "filterByFormula",
                 value: formula.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
             )]
-            
+        // Allow fetching directors for a specific movie
+        case .movieDirectors(let movieId):
+            let formula = "movie_id='\(movieId)'" // Airtable formula
+            return [URLQueryItem(
+                name: "filterByFormula",
+                value: formula.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            )]
         default:
             return nil
         }
