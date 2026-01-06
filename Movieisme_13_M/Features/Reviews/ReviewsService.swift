@@ -21,18 +21,17 @@ enum ReviewsAPIError: LocalizedError {
 
 final class ReviewsService {
 
-    // ✅ ضعي baseURL الحقيقي
+   
     private let baseURL = "YOUR_BASE_URL_HERE"
 
-    // ✅ إذا لازم Authorization Bearer (حسب الكونفلونس)
-    private let token: String? = nil  // "paste-token-here"
+    
+    private let token: String? = nil
 
     struct CreateReviewBody: Encodable {
         let movie_id: String
         let rating: Int
         let review: String
-        // إذا احتاج user_id أضيفيه هنا
-        // let user_id: Int
+       
     }
 
     func createReview(movieId: String, rating: Int, review: String) async throws {

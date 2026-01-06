@@ -11,7 +11,7 @@ import Combine
 // MARK: - View
 
 struct ReviewsSection: View {
-    let movieName: String  // ✅ نستخدم اسم الفيلم
+    let movieName: String
     @StateObject private var reviewsVM = ReviewsSectionViewModel()
 
     init(movieName: String) {
@@ -62,7 +62,7 @@ struct ReviewsSection: View {
             }
         }
         .onAppear {
-            reviewsVM.loadReviews(forMovieName: movieName)  // ✅ نستخدم الاسم
+            reviewsVM.loadReviews(forMovieName: movieName)
         }
     }
 }
@@ -88,7 +88,7 @@ final class ReviewsSectionViewModel: ObservableObject {
         String(format: "%.1f", averageRating == 0 ? 0 : averageRating)
     }
 
-    func loadReviews(forMovieName name: String) {  // ✅ نستخدم اسم الفيلم
+    func loadReviews(forMovieName name: String) {
         guard !didLoad else { return }
         didLoad = true
 
@@ -98,14 +98,14 @@ final class ReviewsSectionViewModel: ObservableObject {
 
         Task {
             do {
-                // 1️⃣ أولاً: نجيب الـ recordId من اسم الفيلم
+               
                 guard let movieRecordId = try await service.fetchMovieRecordId(byName: name) else {
                     self.errorMessage = "Movie '\(name)' not found"
                     self.isLoading = false
                     return
                 }
                 
-                // 2️⃣ ثانياً: نجيب الـ reviews
+              
                 let result = try await service.fetchReviews(movieRecordId: movieRecordId)
                 self.reviews = result
                 self.isLoading = false
@@ -126,13 +126,13 @@ final class ReviewsSectionViewModel: ObservableObject {
 
 final class ReviewsAirtableService {
     
-    // ✅ 1️⃣ جيب Movie Record ID من اسم الفيلم
+   
     func fetchMovieRecordId(byName name: String) async throws -> String? {
-        // ✅ استخدام SEARCH للبحث عن أي جزء من الاسم
+       
         let formula = "SEARCH(LOWER('\(name)'), LOWER({name}))"
         
         let url = try makeURL(
-            table: "Movies",  // ✅ غيّري لاسم جدول الأفلام عندك
+            table: "Movies",
             queryItems: [
                 URLQueryItem(name: "filterByFormula", value: formula),
                 URLQueryItem(name: "maxRecords", value: "1")
@@ -155,7 +155,7 @@ final class ReviewsAirtableService {
             throw URLError(.badServerResponse)
         }
         
-        // Decode النتيجة
+     
         let decoded = try JSONDecoder().decode(AirtableMovieListResponse.self, from: data)
         let recordId = decoded.records.first?.id
         
@@ -163,17 +163,17 @@ final class ReviewsAirtableService {
         return recordId
     }
 
-    // ✅ 2️⃣ GET Reviews filtered by Airtable linked record id
+  
     func fetchReviews(movieRecordId: String) async throws -> [AirtableReviewRecord] {
 
-        // ✅ إذا movie_id Linked Record (array) نستخدم FIND + ARRAYJOIN
+       
         let formula = "FIND('\(movieRecordId)', ARRAYJOIN({movie_id}))"
 
         let url = try makeURL(
             table: "Reviews",
             queryItems: [
                 URLQueryItem(name: "filterByFormula", value: formula)
-                // ✅ تم حذف الـ sort على createdTime
+               
             ]
         )
 
@@ -181,7 +181,7 @@ final class ReviewsAirtableService {
         req.httpMethod = "GET"
         req.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        // ✅ Authorization صحيح
+       
         let token = Token.airtableToken
         let authValue = token.lowercased().starts(with: "bearer ") ? token : "Bearer \(token)"
         req.setValue(authValue, forHTTPHeaderField: "Authorization")
@@ -201,7 +201,7 @@ final class ReviewsAirtableService {
             }
         }
 
-        // اطبعي JSON الخام
+      
         if let raw = String(data: data, encoding: .utf8) {
             print("✅ Reviews RAW Response:\n\(raw)")
         }
@@ -209,7 +209,7 @@ final class ReviewsAirtableService {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AirtableReviewListResponse.self, from: data)
         
-        // ✅ رتّب البيانات حسب createdTime (الأحدث أولاً)
+    
         let sorted = decoded.records.sorted { record1, record2 in
             guard let time1 = record1.createdTime,
                   let time2 = record2.createdTime else {
@@ -263,7 +263,7 @@ struct AirtableReviewFields: Decodable {
     }
 }
 
-// ✅ Models للـ Movies API (عشان نجيب الـ recordId)
+
 struct AirtableMovieListResponse: Decodable {
     let records: [AirtableMovieRecord]
 }
@@ -280,7 +280,7 @@ struct AirtableMovieFields: Decodable {
 // MARK: - Helpers
 
 private extension String {
-    /// Airtable createdTime usually ISO8601: 2025-01-05T12:34:56.000Z
+    /// Airtable createdTime  ISO8601: 2025-01-05T12:34:56.000Z
     var dayNameShort: String? {
         let iso = ISO8601DateFormatter()
         iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
