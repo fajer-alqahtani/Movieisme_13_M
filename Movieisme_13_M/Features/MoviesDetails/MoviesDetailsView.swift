@@ -103,7 +103,7 @@ struct MovieDetailsView: View {
                     showAddReview = true
                 }
                 .sheet(isPresented: $showAddReview) {
-        //                AddReviewView(movieId: movie.id)
+                        AddReviewView(movieId: movie.id)
                 }
                 .padding([.top,.bottom], 32)
 

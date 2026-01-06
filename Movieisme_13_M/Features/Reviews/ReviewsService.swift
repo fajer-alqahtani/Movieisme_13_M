@@ -28,14 +28,14 @@ final class ReviewsService {
     private let token: String? = nil  // "paste-token-here"
 
     struct CreateReviewBody: Encodable {
-        let movie_id: Int
+        let movie_id: String
         let rating: Int
         let review: String
         // إذا احتاج user_id أضيفيه هنا
         // let user_id: Int
     }
 
-    func createReview(movieId: Int, rating: Int, review: String) async throws {
+    func createReview(movieId: String, rating: Int, review: String) async throws {
         guard let url = URL(string: "\(baseURL)/review") else { throw ReviewsAPIError.invalidURL }
 
         var req = URLRequest(url: url)

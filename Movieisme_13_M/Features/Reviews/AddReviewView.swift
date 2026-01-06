@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddReviewView: View {
-    let movieId: Int
+    let movieId: String
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm = ReviewsViewModel()
@@ -117,6 +117,6 @@ struct AddReviewView: View {
     }
 }
 #Preview {
-    AddReviewView(movieId: 1)
+    AddReviewView(movieId: "1")
 }
 

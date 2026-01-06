@@ -16,7 +16,7 @@ final class ReviewsViewModel: ObservableObject {
 
     private let service = ReviewsService()
 
-    func addReview(movieId: Int, rating: Int, review: String) async -> Bool {
+    func addReview(movieId: String, rating: Int, review: String) async -> Bool {
         isSubmitting = true
         errorMessage = nil
         defer { isSubmitting = false }
