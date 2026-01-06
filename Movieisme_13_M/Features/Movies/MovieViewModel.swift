@@ -11,7 +11,11 @@ import Foundation
 //final means this class can't be subclassed
 final class MovieViewModel: ObservableObject {
     @Published var movies: [MovieModel] = []
+    @Published var isLoading = false
+    @Published var error: AppError?
+    @Published var errorMessage: String?
     private let movieService = MovieService()
+    
     
     
     var dramaMovies: [MovieModel] {
@@ -28,11 +32,18 @@ final class MovieViewModel: ObservableObject {
     
     
     func loadMovies() async {
+        isLoading = true
+        defer { isLoading = false }
         do {
             //Returns [MovieModel]
             movies = try await movieService.fetchMovies()
+            error = nil
+            errorMessage = nil
             print("✅ Movies loaded:", movies.count)
         } catch {
+            let appError = AppError.map(error)
+            self.error = appError
+            self.errorMessage = appError.localizedDescription
             print("❌ Failed:", error)
         }
     }

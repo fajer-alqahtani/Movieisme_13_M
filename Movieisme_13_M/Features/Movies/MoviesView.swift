@@ -72,20 +72,6 @@ struct MoviesView: View {
         }
     }
 }
-//
-//#Preview {
-//    let signInVM = SignInViewModel()
-//    signInVM.signedInUser = SignInUserModel(
-//        id: "preview",
-//        name: "Preview User",
-//        email: "preview@example.com",
-//        profileImage: "https://i.pinimg.com/736x/00/47/00/004700cb81873e839ceaadf9f3c1fb28.jpg"
-//    )
-//
-//    return MoviesView()
-//        .environmentObject(signInVM)
-//        .preferredColorScheme(.dark)
-//}
 
 
 //MARK: - Search Bar View
