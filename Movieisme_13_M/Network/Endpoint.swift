@@ -106,7 +106,7 @@ extension Endpoint {
     }
 }
 
-// MARK: - Query Items
+// MARK: - Query Items: return only records related to this movie (or filter)
 extension Endpoint {
     var queryItems: [URLQueryItem]? {
         switch self {

@@ -1,10 +1,10 @@
 import Foundation
 
+//Network layer that: Sends HTTP requests, Validates responses, Decodes JSON into models
 final class NetworkService {
     static let shared = NetworkService()
     private init() {}
 
-    
     func request<T: Decodable>(
         endpoint: Endpoint,
         responseType: T.Type
@@ -43,7 +43,7 @@ final class NetworkService {
 
     }
 
-    // MARK: - Request with ‎Body (PATCH/POST/PUT)
+    // MARK: - Request with ‎Body (POST/PUT)
     func request<T: Decodable>(
         endpoint: Endpoint,
         body: Data,
