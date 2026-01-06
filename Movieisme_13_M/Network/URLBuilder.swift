@@ -12,8 +12,7 @@ struct URLBuilder {
         components.scheme = APIConfig.scheme
         components.host = APIConfig.host
         components.path = endpoint.path
-        
-        // ✅ Add this line to include query items
+        //Include query items
         components.queryItems = endpoint.queryItems
         
         return components.url
