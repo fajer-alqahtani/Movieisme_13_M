@@ -15,6 +15,9 @@ struct MovieDetailsView: View {
     
     @State private var showAddReview = false
     
+    @StateObject private var movieDetailsVM = MovieDetailsViewModel()
+
+    
 
     var body: some View {
         ScrollView{
@@ -70,11 +73,18 @@ struct MovieDetailsView: View {
                 }
                 
                 SectionView(title: "Stars") {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            StarView(name: "Tim Robbins")
-                            StarView(name: "Morgan Freeman")
-                            StarView(name: "Bob Gunton")
+                    if movieDetailsVM.isLoading {
+                        ProgressView()
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(movieDetailsVM.actors) { actor in
+                                    StarView(
+                                        name: actor.name,
+                                        imageURL: actor.image
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -98,24 +108,27 @@ struct MovieDetailsView: View {
         .coordinateSpace(name: "scroll")
         .background(Color.black.ignoresSafeArea())
         .foregroundColor(.light1)
+        .task {
+            await movieDetailsVM.fetchActors(for: movie)
+        }
     }
 }
 
 #Preview {
-    MovieDetailsView(
-        movie: MovieModel(
-            id: "preview-movie-id",
-            name: "The Shawshank Redemption",
-            poster: "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmRhMC00ZDIwLTgxNWEtN2IyODc5N2U3YzY3XkEyXkFqcGc@._V1_.jpg",
-            story: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-            runtime: "2h 22m",
-            genre: ["Drama"],
-            rating: "R",
-            imdbRating: 9.3,
-            language: ["English"]
-        )
+    let movie = MovieModel(
+        id: "recfNj1e4waOUJLxd",
+        name: "The Shawshank Redemption",
+        poster: "...",
+        story: "...",
+        runtime: "2h 22m",
+        genre: ["Drama"],
+        rating: "R",
+        imdbRating: 9.3,
+        language: ["English"]
     )
-    .preferredColorScheme(.dark)
+
+    MovieDetailsView(movie: movie)
+        .preferredColorScheme(.dark)
 }
 
 // MARK: - Header Image
@@ -132,7 +145,6 @@ private struct HeaderImage: View{
             } placeholder: {
                 Color.dark2
             }
-            .frame(height: 448)
 
             LinearGradient(
                 gradient: Gradient(colors: [.clear, .black.opacity(0.82)]),
@@ -191,12 +203,19 @@ struct SectionView<Content: View>: View {
 // MARK: - Star View
 struct StarView: View {
     let name: String
+    let imageURL: String
 
     var body: some View {
         VStack{
-            Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 76, height: 76)
+            AsyncImage(url: URL(string: imageURL)) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Color.gray.opacity(0.3)
+            }
+            .frame(width: 76, height: 76)
+            .clipShape(Circle())
 
             Text(name)
                 .font(.system(size: 15))

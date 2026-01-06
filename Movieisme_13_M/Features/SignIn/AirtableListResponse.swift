@@ -26,7 +26,7 @@ struct AirtableRecord<Fields: Decodable>: Decodable {
 // Users table fields (حسب ما ورد في Postman: email, password, name, profile_image)
 struct AirtableUserFields: Decodable {
     let email: String
-    let password: String
+    let password: String? // ⚠️ optional
     let name: String?
     let profile_image: String?
 }
