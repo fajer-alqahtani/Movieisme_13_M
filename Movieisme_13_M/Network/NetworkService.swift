@@ -11,7 +11,7 @@ final class NetworkService {
     ) async throws -> T {
 
         guard let url = URLBuilder.makeURL(for: endpoint) else {
-            throw URLError(.badURL)
+            throw AppError.invalidURL
         }
 
         var request = URLRequest(url: url)
@@ -28,21 +28,22 @@ final class NetworkService {
         }
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
+            throw AppError.invalidResponse
         }
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw NSError(
-                domain: "NetworkService",
-                code: httpResponse.statusCode,
-                userInfo: [NSLocalizedDescriptionKey: raw]
-            )
+            throw AppError.httpStatus(httpResponse.statusCode)
+        }
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            print("❌ Decoding error:", error)
+            throw AppError.map(error)
         }
 
-        return try JSONDecoder().decode(T.self, from: data)
     }
 
-    // MARK: - Request مع Body (PATCH/POST/PUT)
+    // MARK: - Request with ‎Body (PATCH/POST/PUT)
     func request<T: Decodable>(
         endpoint: Endpoint,
         body: Data,
@@ -50,7 +51,7 @@ final class NetworkService {
     ) async throws -> T {
 
         guard let url = URLBuilder.makeURL(for: endpoint) else {
-            throw URLError(.badURL)
+            throw AppError.invalidURL
         }
 
         var request = URLRequest(url: url)
@@ -70,18 +71,20 @@ final class NetworkService {
         print("📥 Response:", raw)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
+            throw AppError.invalidResponse
         }
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw NSError(
-                domain: "NetworkService",
-                code: httpResponse.statusCode,
-                userInfo: [NSLocalizedDescriptionKey: raw]
-            )
+            throw AppError.httpStatus(httpResponse.statusCode)
         }
 
-        return try JSONDecoder().decode(T.self, from: data)
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            print("❌ Decoding error:", error)
+            throw AppError.map(error)
+        }
+
     }
 }
 
