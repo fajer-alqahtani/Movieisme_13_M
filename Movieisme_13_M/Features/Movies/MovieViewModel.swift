@@ -11,6 +11,8 @@ import Foundation
 //final means this class can't be subclassed
 final class MovieViewModel: ObservableObject {
     @Published var movies: [MovieModel] = []
+    private let movieService = MovieService()
+    
     
     var dramaMovies: [MovieModel] {
         movies.filter { $0.genre.contains("Drama") }
@@ -28,7 +30,7 @@ final class MovieViewModel: ObservableObject {
     func loadMovies() async {
         do {
             //Returns [MovieModel]
-            movies = try await fetchMovies()
+            movies = try await movieService.fetchMovies()
             print("✅ Movies loaded:", movies.count)
         } catch {
             print("❌ Failed:", error)
@@ -50,3 +52,4 @@ final class MovieViewModel: ObservableObject {
         }
     }
 }
+
