@@ -47,7 +47,7 @@ struct MovieDetailsView: View {
                     }
                     
                     SectionView(title: "IMDb Rating") {
-                        Text(String(format: "%.1f", movie.imdbRating))
+                        Text(String(format: "%.1f/10", movie.imdbRating))
                             .font(.system(size: 15))
                             .fontWeight(.medium)
                             .foregroundColor(.dark4)

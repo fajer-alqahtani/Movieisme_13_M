@@ -70,6 +70,9 @@ final class MovieDetailsViewModel: ObservableObject {
             errorMessage = nil
             
         } catch {
+            if error is CancellationError {
+                return // 👈 ignore, SwiftUI cancelled the task
+            }
             let appError = AppError.map(error)
             self.error = appError
             self.errorMessage = appError.localizedDescription
