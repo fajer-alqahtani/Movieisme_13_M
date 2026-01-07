@@ -34,3 +34,12 @@ The app implements full **CRUD (Create, Read, Update)** functionality using a RE
 - **Error Handling:**  
   - HTTP status code validation  
   - Decoding error handling  
+
+
+## Screenshots
+
+<img width="258" height="768" alt="Screenshot 1447-07-18 at 9 01 05 PM" src="https://github.com/user-attachments/assets/a9761c41-0c7e-4888-987f-28274e4a729f" /> <img width="258" height="768" alt="image" src="https://github.com/user-attachments/assets/1b8361b1-a146-4a16-a9a4-e94d4c2eeabd" /> <img width="258" height="768" alt="image" src="https://github.com/user-attachments/assets/df57d346-6bd4-4b6f-b7b6-0b1968b47946" />
+
+
+
+
